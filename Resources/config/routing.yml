@@ -1,0 +1,3 @@
+CornichonForumBundle_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: CornichonForumBundle:Default:index }
