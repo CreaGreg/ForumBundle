@@ -4,10 +4,12 @@ namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Cornichon\UserBundle\Entity\User;
+
 /**
  * Cornichon\ForumBundle\Entity\TopicStat
  *
- * @ORM\Table()
+ * @ORM\Table(name="`topic_stat`")
  * @ORM\Entity
  */
 class TopicStat
@@ -41,6 +43,14 @@ class TopicStat
      * @ORM\Column(name="date_modified", type="datetime")
      */
     private $dateModified;
+
+    /**
+     * @var User $user
+     *
+     * @ORM\ManyToOne(targetEntity="\Cornichon\UserBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $lastUser;
 
 
     /**
@@ -120,5 +130,28 @@ class TopicStat
     public function getDateModified()
     {
         return $this->dateModified;
+    }
+
+    /**
+     * Set user
+     *
+     * @param UserInterface $user
+     * @return TopicStat
+     */
+    public function setLastUser(UserInterface $user)
+    {
+        $this->lastUser = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return UserInterface
+     */
+    public function getLastUser()
+    {
+        return $this->lastUser;
     }
 }

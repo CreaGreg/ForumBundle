@@ -4,10 +4,12 @@ namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Cornichon\UserBundle\Entity\User;
+
 /**
  * Cornichon\ForumBundle\Entity\Message
  *
- * @ORM\Table()
+ * @ORM\Table(name="`message`")
  * @ORM\Entity
  */
 class Message
@@ -48,6 +50,14 @@ class Message
      * @ORM\Column(name="is_deleted", type="boolean")
      */
     private $isDeleted;
+
+    /**
+     * @var User $user
+     *
+     * @ORM\ManyToOne(targetEntity="\Cornichon\UserBundle\Entity\User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
 
 
     /**
@@ -147,8 +157,31 @@ class Message
      *
      * @return boolean 
      */
-    public function getIsDeleted()
+    public function isDeleted()
     {
         return $this->isDeleted;
+    }
+
+    /**
+     * Set user
+     *
+     * @param UserInterface $user
+     * @return Topic
+     */
+    public function setUser(UserInterface $user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return UserInterface
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

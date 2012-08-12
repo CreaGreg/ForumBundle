@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\BoardStat
  *
- * @ORM\Table()
+ * @ORM\Table(name="`board_stat`")
  * @ORM\Entity
  */
 class BoardStat
@@ -34,7 +34,6 @@ class BoardStat
      * @ORM\Column(name="date_modified", type="datetime")
      */
     private $dateModified;
-
 
     /**
      * Get id
