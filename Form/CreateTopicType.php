@@ -1,6 +1,6 @@
 <?php
 
-namespace Cornichon\FormBundle\Form;
+namespace Cornichon\ForumBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,7 +11,10 @@ class CreateTopicType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            // ->add('username')
+            ->add('title')
+            ->add('body', 'textarea', array(
+                'property_path' => false
+            ))
         ;
     }
 

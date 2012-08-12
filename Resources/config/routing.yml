@@ -1,3 +1,27 @@
-CornichonForumBundle_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: CornichonForumBundle:Default:index }
+CornichonForumBundle_listMessages:
+    pattern:  /list-messages/{topicId}/
+    defaults: { _controller: CornichonForumBundle:Module:listMessages }
+
+CornichonForumBundle_listTopics:
+    pattern:  /list-topics/
+    defaults: { _controller: CornichonForumBundle:Module:listTopics }
+
+CornichonForumBundle_listTopicsInBoard:
+    pattern:  /list-topics/{boardId}/
+    defaults: { _controller: CornichonForumBundle:Module:listTopics }
+
+CornichonForumBundle_listBoards:
+    pattern:  /list-boards/
+    defaults: { _controller: CornichonForumBundle:Module:listBoards }
+
+CornichonForumBundle_newMessage:
+    pattern:  /new-message/{topicId}/
+    defaults: { _controller: CornichonForumBundle:Module:newMessage }
+
+CornichonForumBundle_newTopic:
+    pattern:  /new-topic/{boardId}/
+    defaults: { _controller: CornichonForumBundle:Module:newTopic }
+
+CornichonForumBundle_newBoard:
+    pattern:  /new-board/
+    defaults: { _controller: CornichonForumBundle:Module:newBoard }

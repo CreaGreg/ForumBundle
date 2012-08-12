@@ -4,13 +4,11 @@ namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-use Cornichon\UserBundle\Entity\User;
-
 /**
  * Cornichon\ForumBundle\Entity\Message
  *
  * @ORM\Table(name="`message`")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="\Cornichon\ForumBundle\Repository\MessageRepository")
  */
 class Message
 {
@@ -40,7 +38,7 @@ class Message
     /**
      * @var \DateTime $dateModified
      *
-     * @ORM\Column(name="date_modified", type="datetime")
+     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     private $dateModified;
 
@@ -49,7 +47,7 @@ class Message
      *
      * @ORM\Column(name="is_deleted", type="boolean")
      */
-    private $isDeleted;
+    private $isDeleted = false;
 
     /**
      * @var User $user
@@ -59,6 +57,13 @@ class Message
      */
     private $user;
 
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Topic $topic
+     *
+     * @ORM\ManyToOne(targetEntity="\Cornichon\ForumBundle\Entity\Topic", inversedBy="messages")
+     * @ORM\JoinColumn(name="topic_id", referencedColumnName="id")
+     */
+    private $topic;
 
     /**
      * Get id
@@ -166,9 +171,9 @@ class Message
      * Set user
      *
      * @param UserInterface $user
-     * @return Topic
+     * @return Message
      */
-    public function setUser(UserInterface $user)
+    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
         $this->user = $user;
 
@@ -183,5 +188,28 @@ class Message
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Set topic
+     *
+     * @param \Cornichon\ForumBundle\Entity\Topic $topic
+     * @return Message
+     */
+    public function setTopic(\Cornichon\ForumBundle\Entity\Topic $topic)
+    {
+        $this->topic = $topic;
+
+        return $this;
+    }
+
+    /**
+     * Get topic
+     *
+     * @return \Cornichon\ForumBundle\Entity\Topic
+     */
+    public function getTopic()
+    {
+        return $this->topic;
     }
 }

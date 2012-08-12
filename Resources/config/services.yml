@@ -1,7 +1,15 @@
 parameters:
-#    cornichon_forum.example.class: Cornichon\ForumBundle\Example
+    cornichon_forum.board_service.class: Cornichon\ForumBundle\Service\BoardService
+    cornichon_forum.topic_service.class: Cornichon\ForumBundle\Service\TopicService
+    cornichon_forum.message_service.class: Cornichon\ForumBundle\Service\MessageService
 
 services:
-#    cornichon_forum.example:
-#        class: %cornichon_forum.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
+    cornichon.forum.board:
+        class: %cornichon_forum.board_service.class%
+        arguments: [@service_container]
+    cornichon.forum.topic:
+        class: %cornichon_forum.topic_service.class%
+        arguments: [@service_container]
+    cornichon.forum.message:
+        class: %cornichon_forum.message_service.class%
+        arguments: [@service_container]

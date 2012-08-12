@@ -26,14 +26,22 @@ class BoardStat
      *
      * @ORM\Column(name="posts", type="integer")
      */
-    private $posts;
+    private $posts = 0;
 
     /**
      * @var \DateTime $dateModified
      *
-     * @ORM\Column(name="date_modified", type="datetime")
+     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     private $dateModified;
+
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Board $board
+     *
+     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\Board", inversedBy="stat")
+     * @ORM\JoinColumn(name="board_id", referencedColumnName="id")
+     */
+    private $board;
 
     /**
      * Get id
@@ -89,5 +97,28 @@ class BoardStat
     public function getDateModified()
     {
         return $this->dateModified;
+    }
+
+    /**
+     * Set board
+     *
+     * @param \Cornichon\ForumBundle\Entity\Board $board
+     * @return BoardStat
+     */
+    public function setBoard(\Cornichon\ForumBundle\Entity\Board $board)
+    {
+        $this->board = $board;
+
+        return $this;
+    }
+
+    /**
+     * Get board
+     *
+     * @return \Cornichon\ForumBundle\Entity\Board
+     */
+    public function getBoard()
+    {
+        return $this->board;
     }
 }

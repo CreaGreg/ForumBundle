@@ -3,14 +3,13 @@
 namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
-use Cornichon\UserBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Cornichon\ForumBundle\Entity\Topic
  *
  * @ORM\Table(name="`topic`")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="\Cornichon\ForumBundle\Repository\TopicRepository")
  */
 class Topic
 {
@@ -40,7 +39,7 @@ class Topic
     /**
      * @var \DateTime $dateModified
      *
-     * @ORM\Column(name="date_modified", type="datetime")
+     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     private $dateModified;
 
@@ -59,6 +58,32 @@ class Topic
      */
     private $user;
 
+    /**
+     * @var \Cornichon\ForumBundle\Entity\TopicStat $stat
+     *
+     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\TopicStat", mappedBy="topic")
+     */
+    private $stat;
+
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Board $board
+     *
+     * @ORM\ManyToOne(targetEntity="\Cornichon\ForumBundle\Entity\Board", inversedBy="topics")
+     * @ORM\JoinColumn(name="board_id", referencedColumnName="id")
+     */
+    private $board;
+
+    /**
+     * @var ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="\Cornichon\ForumBundle\Entity\Message", mappedBy="topic")
+     */
+    private $messages;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -168,7 +193,7 @@ class Topic
      * @param UserInterface $user
      * @return Topic
      */
-    public function setUser(UserInterface $user)
+    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
         $this->user = $user;
 
@@ -183,5 +208,50 @@ class Topic
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Set stat
+     *
+     * @param \Cornichon\ForumBundle\Entity\TopicStat $stat
+     * @return Topic
+     */
+    public function setStat(\Cornichon\ForumBundle\Entity\TopicStat $stat)
+    {
+        $this->stat = $stat;
+
+        return $this;
+    }
+
+    /**
+     * Get stat
+     *
+     * @return \Cornichon\ForumBundle\Entity\TopicStat
+     */
+    public function getStat()
+    {
+        return $this->stat;
+    }
+
+    /**
+     * Set messages
+     *
+     * @return Topic
+     */
+    public function setMessages(ArrayCollection $messages)
+    {
+        $this->messages = $messages;
+
+        return $this;
+    }
+
+    /**
+     * Get a collection of messages
+     *
+     * @return ArrayCollection
+     */
+    public function getMessages()
+    {
+        return $this->messages;
     }
 }

@@ -3,14 +3,13 @@
 namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
-use Cornichon\UserBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Cornichon\ForumBundle\Entity\Board
  *
  * @ORM\Table(name="`board`")
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="\Cornichon\ForumBundle\Repository\BoardRepository")
  */
 class Board
 {
@@ -40,7 +39,7 @@ class Board
     /**
      * @var string $body
      *
-     * @ORM\Column(name="body", type="string", length=255)
+     * @ORM\Column(name="body", type="string", length=255, nullable=true)
      */
     private $body;
 
@@ -54,7 +53,7 @@ class Board
     /**
      * @var \DateTime $dateModified
      *
-     * @ORM\Column(name="date_modified", type="datetime")
+     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     private $dateModified;
 
@@ -63,7 +62,7 @@ class Board
      *
      * @ORM\Column(name="is_deleted", type="boolean")
      */
-    private $isDeleted;
+    private $isDeleted = false;
 
     /**
      * @var User $user
@@ -72,6 +71,25 @@ class Board
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
+
+    /**
+     * @var \Cornichon\ForumBundle\Entity\BoardStat $stat
+     *
+     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\BoardStat", mappedBy="board")
+     */
+    private $stat;
+
+    /**
+     * @var ArrayCollection $topics
+     *
+     * @ORM\OneToMany(targetEntity="\Cornichon\ForumBundle\Entity\Topic", mappedBy="board")
+     */
+    private $topics;
+
+    public function __construct()
+    {
+        $this->topics = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -227,7 +245,7 @@ class Board
      * @param UserInterface $user
      * @return Board
      */
-    public function setUser(UserInterface $user)
+    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
         $this->user = $user;
 
@@ -242,5 +260,50 @@ class Board
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Set stat
+     *
+     * @param \Cornichon\ForumBundle\Entity\BoardStat $stat
+     * @return Board
+     */
+    public function setStat(\Cornichon\ForumBundle\Entity\BoardStat $stat)
+    {
+        $this->stat = $stat;
+
+        return $this;
+    }
+
+    /**
+     * Get stat
+     *
+     * @return \Cornichon\ForumBundle\Entity\BoardStat
+     */
+    public function getStat()
+    {
+        return $this->stat;
+    }
+
+    /**
+     * Set topics
+     *
+     * @return Board
+     */
+    public function setTopics(ArrayCollection $topics)
+    {
+        $this->topics = $topics;
+
+        return $this;
+    }
+
+    /**
+     * Get a collection of topics
+     *
+     * @return ArrayCollection
+     */
+    public function getTopics()
+    {
+        return $this->topics;
     }
 }

@@ -4,8 +4,6 @@ namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-use Cornichon\UserBundle\Entity\User;
-
 /**
  * Cornichon\ForumBundle\Entity\TopicStat
  *
@@ -28,19 +26,19 @@ class TopicStat
      *
      * @ORM\Column(name="views", type="integer")
      */
-    private $views;
+    private $views = 0;
 
     /**
      * @var integer $posts
      *
      * @ORM\Column(name="posts", type="integer")
      */
-    private $posts;
+    private $posts = 0;
 
     /**
      * @var \DateTime $dateModified
      *
-     * @ORM\Column(name="date_modified", type="datetime")
+     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     private $dateModified;
 
@@ -51,6 +49,14 @@ class TopicStat
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $lastUser;
+
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Topic $topic
+     *
+     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\Topic", inversedBy="stat")
+     * @ORM\JoinColumn(name="topic_id", referencedColumnName="id")
+     */
+    private $topic;
 
 
     /**
@@ -138,7 +144,7 @@ class TopicStat
      * @param UserInterface $user
      * @return TopicStat
      */
-    public function setLastUser(UserInterface $user)
+    public function setLastUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
         $this->lastUser = $user;
 
@@ -153,5 +159,28 @@ class TopicStat
     public function getLastUser()
     {
         return $this->lastUser;
+    }
+
+    /**
+     * Set topic
+     *
+     * @param \Cornichon\ForumBundle\Entity\Topic $topic
+     * @return TopicStat
+     */
+    public function setTopic(\Cornichon\ForumBundle\Entity\Topic $topic)
+    {
+        $this->topic = $topic;
+
+        return $this;
+    }
+
+    /**
+     * Get topic
+     *
+     * @return \Cornichon\ForumBundle\Entity\Topic
+     */
+    public function getTopic()
+    {
+        return $this->topic;
     }
 }
