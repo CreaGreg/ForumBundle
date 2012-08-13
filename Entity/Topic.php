@@ -8,8 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Cornichon\ForumBundle\Entity\Topic
  *
- * @ORM\Table(name="`topic`")
- * @ORM\Entity(repositoryClass="\Cornichon\ForumBundle\Repository\TopicRepository")
+ * @Orm\MappedSuperclass
  */
 class Topic
 {
@@ -52,31 +51,21 @@ class Topic
 
     /**
      * @var User $user
-     *
-     * @ORM\ManyToOne(targetEntity="\Cornichon\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\TopicStat $stat
-     *
-     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\TopicStat", mappedBy="topic")
      */
     private $stat;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Board $board
-     *
-     * @ORM\ManyToOne(targetEntity="\Cornichon\ForumBundle\Entity\Board", inversedBy="topics")
-     * @ORM\JoinColumn(name="board_id", referencedColumnName="id")
      */
     private $board;
 
     /**
      * @var ArrayCollection
-     *
-     * @ORM\OneToMany(targetEntity="\Cornichon\ForumBundle\Entity\Message", mappedBy="topic")
      */
     private $messages;
 

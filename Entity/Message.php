@@ -7,8 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\Message
  *
- * @ORM\Table(name="`message`")
- * @ORM\Entity(repositoryClass="\Cornichon\ForumBundle\Repository\MessageRepository")
+ * @Orm\MappedSuperclass
  */
 class Message
 {
@@ -51,17 +50,11 @@ class Message
 
     /**
      * @var User $user
-     *
-     * @ORM\ManyToOne(targetEntity="\Cornichon\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
-     *
-     * @ORM\ManyToOne(targetEntity="\Cornichon\ForumBundle\Entity\Topic", inversedBy="messages")
-     * @ORM\JoinColumn(name="topic_id", referencedColumnName="id")
      */
     private $topic;
 

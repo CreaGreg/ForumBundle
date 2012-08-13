@@ -7,8 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\TopicStat
  *
- * @ORM\Table(name="`topic_stat`")
- * @ORM\Entity
+ * @Orm\MappedSuperclass
  */
 class TopicStat
 {
@@ -44,17 +43,11 @@ class TopicStat
 
     /**
      * @var User $user
-     *
-     * @ORM\ManyToOne(targetEntity="\Cornichon\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $lastUser;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
-     *
-     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\Topic", inversedBy="stat")
-     * @ORM\JoinColumn(name="topic_id", referencedColumnName="id")
      */
     private $topic;
 

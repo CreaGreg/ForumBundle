@@ -7,8 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\BoardStat
  *
- * @ORM\Table(name="`board_stat`")
- * @ORM\Entity
+ * @Orm\MappedSuperclass
  */
 class BoardStat
 {
@@ -37,9 +36,6 @@ class BoardStat
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Board $board
-     *
-     * @ORM\OneToOne(targetEntity="\Cornichon\ForumBundle\Entity\Board", inversedBy="stat")
-     * @ORM\JoinColumn(name="board_id", referencedColumnName="id")
      */
     private $board;
 
