@@ -2,13 +2,27 @@
 
 namespace Cornichon\ForumBundle\Repository;
 
-use Cornichon\ForumBundle\Entity\Board;
+use Loverz\ForumBundle\Entity\Board;
+use Cornichon\ForumBundle\Entity\BoardStat;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BoardRepository extends EntityRepository
 {
+
+	public function getBoards($offset, $limit)
+	{
+		$query = $this->createQueryBuilder('b')
+					  ->select(array('b', 's'))
+					  ->join('b.stat', 's')
+					  ->getQuery()
+					  ->setFirstResult($offset)
+					  ->setMaxResults($limit);
+
+		return new Paginator($query, false);
+	}
+
 	public function getLatestBoards($offset, $limit)
 	{
 		$query = $this->createQueryBuilder('b')
@@ -19,7 +33,7 @@ class BoardRepository extends EntityRepository
 					  ->setFirstResult($offset)
 					  ->setMaxResults($limit);
 
-		return new Paginator($query, $fetchJoinCollection = true);
+		return new Paginator($query, false);
 	}
 
 }

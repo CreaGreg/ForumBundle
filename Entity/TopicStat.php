@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\TopicStat
  *
- * @Orm\MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class TopicStat
 {
@@ -18,38 +18,38 @@ class TopicStat
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $views
      *
      * @ORM\Column(name="views", type="integer")
      */
-    private $views = 0;
+    protected $views = 0;
 
     /**
      * @var integer $posts
      *
      * @ORM\Column(name="posts", type="integer")
      */
-    private $posts = 0;
+    protected $posts = 0;
 
     /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
-    private $dateModified;
+    protected $dateModified;
 
     /**
      * @var User $user
      */
-    private $lastUser;
+    protected $lastUser;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
      */
-    private $topic;
+    protected $topic;
 
 
     /**

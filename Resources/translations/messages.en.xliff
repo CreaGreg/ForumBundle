@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>Topic.by</source>
+                <target>Topic by</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>Last.message.by</source>
+                <target>Last message by</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>By</source>
+                <target>By</target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>Forum</source>
+                <target>Forum</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>New.message</source>
+                <target>New message</target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>Add.a.new.message</source>
+                <target>Participate in the conversation; add a new message!</target>
+            </trans-unit>
+            <trans-unit id="7"> <!-- Used for an anchor, don't use spaces -->
+                <source>bottom</source>
+                <target>bottom</target>
+            </trans-unit>
+            <trans-unit id="8">
+                <source>New.topic</source>
+                <target>New topic</target>
+            </trans-unit>
+            <trans-unit id="9">
+                <source>Type.title</source>
+                <target>Write a nice title</target>
+            </trans-unit>
+            <trans-unit id="10">
+                <source>With.a.message</source>
+                <target>With a nice message</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>Cancel</source>
+                <target>Cancel</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

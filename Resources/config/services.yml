@@ -3,6 +3,10 @@ parameters:
     cornichon_forum.topic_service.class: Cornichon\ForumBundle\Service\TopicService
     cornichon_forum.message_service.class: Cornichon\ForumBundle\Service\MessageService
 
+    cornichon_forum.board_repository.class: 'CornichonForumBundle:Board'
+    cornichon_forum.topic_repository.class: 'CornichonForumBundle:Topic'
+    cornichon_forum.message_repository.class: 'CornichonForumBundle:Message'
+
 services:
     cornichon.forum.board:
         class: %cornichon_forum.board_service.class%

@@ -2,8 +2,6 @@
 
 namespace Cornichon\ForumBundle\Repository;
 
-use Cornichon\ForumBundle\Entity\Board;
-
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -12,28 +10,32 @@ class TopicRepository extends EntityRepository
 	public function getLatestTopics($offset, $limit)
 	{
 		$query = $this->createQueryBuilder('t')
-					  ->select(array('t', 's'))
+					  ->select(array('t', 'u', 's', 'l'))
+					  ->join('t.user', 'u')
 					  ->join('t.stat', 's')
+					  ->join('s.lastUser', 'l')
 					  ->orderBy('t.id', 'DESC')
 					  ->getQuery()
 					  ->setFirstResult($offset)
 					  ->setMaxResults($limit);
 
-		return new Paginator($query, $fetchJoinCollection = true);
+		return new Paginator($query, false);
 	}
 
-	public function getLatestTopicsByBoard(Board $board, $offset, $limit)
+	public function getLatestTopicsByBoard($board, $offset, $limit)
 	{
 		$query = $this->createQueryBuilder('t')
-					  ->select(array('t', 's'))
+					  ->select(array('t', 'u', 's', 'l'))
+					  ->join('t.user', 'u')
 					  ->join('t.stat', 's')
+					  ->join('s.lastUser', 'l')
 					  ->where('t.board = :board')->setParameter('board', $board)
 					  ->orderBy('t.id', 'DESC')
 					  ->getQuery()
 					  ->setFirstResult($offset)
 					  ->setMaxResults($limit);
 
-		return new Paginator($query, $fetchJoinCollection = true);
+		return new Paginator($query, false);
 	}
 
 }

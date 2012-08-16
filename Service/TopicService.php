@@ -10,29 +10,48 @@ use Cornichon\ForumBundle\Entity\Message;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class TopicService {
+class TopicService extends BaseService {
 
-	private $container;
-	private $em;
-
-	public function __construct (ContainerInterface $container)
+	protected function createTopicStat()
 	{
-		$this->container = $container;
-		$this->em = $container->get('doctrine')->getEntityManager();
+		return new TopicStat();
+	}
+
+	public function getById($topicId)
+	{
+		return $this->em
+					->getRepository($this->topicRepositoryClass)
+					->find($topicId);
+	}
+
+	public function getLatestTopics($offset, $limit)
+	{
+		return $this->em->getRepository($this->topicRepositoryClass)->getLatestTopics($offset, $limit);
+	}
+
+	public function getLatestTopicsByBoard($board, $offset, $limit)
+	{
+		return $this->em->getRepository($this->topicRepositoryClass)->getLatestTopicsByBoard($board, $offset, $limit);
 	}
 
 	public function save (Topic $topic)
 	{
 		if ($topic->getUser() === null) {
-			throw new \Cornichon\ForumBundle\Exception\UserNotSetException();
+			$topic->setUser(
+				$this->container->get('security.context')->getToken()->getUser()
+			);
 		}
 
-		if ($message->getBoard() === null) {
+		if ($topic->getSlug() === null) {
+			$topic->setSlug();
+		}
+
+		if ($topic->getBoard() === null) {
 			throw new \Cornichon\ForumBundle\Exception\BoardNotSetException();
 		}
 
 		if ($topic->getStat() === null) {
-			$topicStat = new TopicStat();
+			$topicStat = $this->createTopicStat();
 			$topicStat->setTopic($topic);
 			$topicStat->setLastUser($topic->getUser());
 			$this->em->persist($topicStat);
@@ -50,5 +69,4 @@ class TopicService {
 
 		return $topic;
 	}
-
 }

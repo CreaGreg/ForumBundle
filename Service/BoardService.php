@@ -7,30 +7,44 @@ use Cornichon\ForumBundle\Entity\BoardStat;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+class BoardService extends BaseService {
 
-class BoardService {
-
-	private $container;
-	private $em;
-
-	public function __construct (ContainerInterface $container)
+	protected function createBoardStat()
 	{
-		$this->container = $container;
-		$this->em = $container->get('doctrine')->getEntityManager();
+		return new BoardStat();
 	}
 
-	public function save (Board $board)
+	public function getById($boardId)
+	{
+		return $this->em
+					->getRepository($this->boardRepositoryClass)
+					->find($boardId);
+	}
+
+	public function getBoards($offset, $limit)
+	{
+		return $this->em
+		            ->getRepository($this->boardRepositoryClass)
+		            ->getBoards($offset, $limit);
+	}
+
+	public function getLatestBoards($offset, $limit)
+	{
+		return $this->em
+					->getRepository($this->boardRepositoryClass)
+					->getLatestBoards($offset, $limit);
+	}
+
+	public function save ($board)
 	{
 		if ($board->getUser() === null) {
-			throw new \Cornichon\ForumBundle\Exception\UserNotSetException();
+			$board->setUser(
+				$this->container->get('security.context')->getToken()->getUser()
+			);
 		}
 
-		if ($board->getStat() === null) {
-			$boardStat = new BoardStat();
-			$boardStat->setBoard($board);
-			$this->em->persist($boardStat);
+		if ($board->getSlug() === null) {
+			$board->setSlug();
 		}
 
 		if ($board->getId() === null) {
@@ -43,7 +57,13 @@ class BoardService {
 		$this->em->persist($board);
 		$this->em->flush($board);
 
+		if ($board->getStat() === null) {
+			$boardStat = $this->createBoardStat();
+			$boardStat->setBoard($board);
+			$this->em->persist($boardStat);
+		}
+		$this->em->flush();
+
 		return $board;
 	}
-
 }

@@ -34,16 +34,16 @@ class ModuleController extends Controller
         $em = $this->get('doctrine')->getEntityManager();
 
         if ($boardId === null) {
-            $topics = $em->getRepository('CornichonForumBundle:Topic')->getLatestTopics(0, 10);
+            $topics = $this->get('cornichon.forum.topic')->getLatestTopics(0, 10);
         }
         else {
-            $board = $em->getRepository('CornichonForumBundle:Board')->find($boardId);
+            $board = $em->getRepository($this->getParameter('cornichon_forum.board_repository.class'))->find($boardId);
 
             if (!$board instanceof Board) {
                 throw $this->createNotFoundException("No Board Found");
             }
 
-            $topics = $em->getRepository('CornichonForumBundle:Topic')->getLatestTopicsByBoard($board, 0, 10);
+            $topics = $this->get('cornichon.forum.topic')->getLatestTopicsByBoard($board, 0, 10);
         }
 
         return $this->render('CornichonForumBundle:Module:listTopics.html.twig', array(
@@ -63,13 +63,13 @@ class ModuleController extends Controller
     {
         $em = $this->get('doctrine')->getEntityManager();
 
-        $topic = $em->getRepository('CornichonForumBundle:Topic')->find($topicId);
+        $topic = $em->getRepository($this->getParameter('cornichon_forum.topic_repository.class'))->find($topicId);
 
         if (!$topic instanceof Topic) {
             throw $this->createNotFoundException("No Topic Found");
         }
 
-        $messages = $em->getRepository('CornichonForumBundle:Message')->getLatestMessagesByTopic($topic, 0, 10);
+        $messages = $this->get('cornichon.forum.message')->getLatestMessagesByTopic($topic, 0, 10);
 
         return $this->render('CornichonForumBundle:Module:listMessages.html.twig', array(
             'messages' => $messages
@@ -84,7 +84,7 @@ class ModuleController extends Controller
 
         $em = $this->get('doctrine')->getEntityManager();
 
-        $topic = $em->getRepository('CornichonForumBundle:Topic')->find($topicId);
+        $topic = $em->getRepository($this->getParameter('cornichon_forum.topic_repository.class'))->find($topicId);
 
         if (!$topic instanceof Topic) {
             throw $this->createNotFoundException("No Topic Found");
@@ -99,11 +99,7 @@ class ModuleController extends Controller
         if ($request->getMethod() === 'POST') {
             $form->bind($request);
             if ($form->isValid() === true) {
-                $user = $this->get('security.context')->getToken()->getUser();
-
-                $message->setUser($user);
                 $message->setTopic($topic);
-
                 $this->get('cornichon.forum.message')->save($message);
             }
         }
@@ -121,7 +117,7 @@ class ModuleController extends Controller
 
         $em = $this->get('doctrine')->getEntityManager();
 
-        $board = $em->getRepository('CornichonForumBundle:Board')->find($boardId);
+        $board = $em->getRepository($this->getParameter('cornichon_forum.board_repository.class'))->find($boardId);
 
         if (!$board instanceof Board) {
             throw $this->createNotFoundException("No Board Found");
@@ -138,7 +134,6 @@ class ModuleController extends Controller
             if ($form->isValid() === true) {
                 $user = $this->get('security.context')->getToken()->getUser();
 
-                $topic->setUser($user);
                 $topic->setBoard($board);
 
                 $this->get('cornichon.forum.topic')->save($topic);
@@ -146,7 +141,6 @@ class ModuleController extends Controller
                 $message = new Message();
 
                 $message->setBody($form['body']->getData());
-                $message->setUser($user);
                 $message->setTopic($topic);
 
                 $this->get('cornichon.forum.message')->save($message);
@@ -173,10 +167,6 @@ class ModuleController extends Controller
         if ($request->getMethod() === 'POST') {
             $form->bind($request);
             if ($form->isValid() === true) {
-                $user = $this->get('security.context')->getToken()->getUser();
-
-                $board->setUser($user);
-
                 $this->get('cornichon.forum.board')->save($board);
             }
         }

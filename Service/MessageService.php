@@ -6,28 +6,30 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+class MessageService extends BaseService
+{
 
-class MessageService {
-
-	private $container;
-	private $em;
-
-	public function __construct (ContainerInterface $container)
+	public function getMessagesByTopic($topic, $offset, $limit)
 	{
-		$this->container = $container;
-		$this->em = $container->get('doctrine')->getEntityManager();
+		return $this->em->getRepository($this->messageRepositoryClass)->getMessagesByTopic($topic, $offset, $limit);
 	}
 
-	public function save (Message $message)
+	public function save (Message $message, $isTopic = false)
 	{
 		if ($message->getUser() === null) {
-			throw new \Cornichon\ForumBundle\Exception\UserNotSetException();
+			$message->setUser(
+				$this->container->get('security.context')->getToken()->getUser()
+			);
 		}
 
 		if ($message->getTopic() === null) {
 			throw new \Cornichon\ForumBundle\Exception\TopicNotSetException();
+		}
+
+		if ($isTopic === false) {
+			$message->getTopic()->getStat()->setPosts(
+				$message->getTopic()->getStat()->getPosts() + 1
+			);
 		}
 
 		if ($message->getId() === null) {

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\Message
  *
- * @Orm\MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class Message
 {
@@ -18,45 +18,45 @@ class Message
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $body
      *
      * @ORM\Column(name="body", type="text")
      */
-    private $body;
+    protected $body;
 
     /**
      * @var \DateTime $dateCreated
      *
      * @ORM\Column(name="date_created", type="datetime")
      */
-    private $dateCreated;
+    protected $dateCreated;
 
     /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
-    private $dateModified;
+    protected $dateModified;
 
     /**
      * @var boolean $isDeleted
      *
      * @ORM\Column(name="is_deleted", type="boolean")
      */
-    private $isDeleted = false;
+    protected $isDeleted = false;
 
     /**
      * @var User $user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
      */
-    private $topic;
+    protected $topic;
 
     /**
      * Get id

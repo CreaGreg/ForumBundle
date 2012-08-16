@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Cornichon\ForumBundle\Entity\Board
  *
- * @Orm\MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class Board
 {
@@ -19,64 +19,71 @@ class Board
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $title
      *
-     * @ORM\Column(name="title", type="string", length=64)
+     * @ORM\Column(name="title", type="string", length=32)
      */
-    private $title;
+    protected $title;
+
+    /**
+     * @var string $slug
+     *
+     * @ORM\Column(name="slug", type="string", length=32)
+     */
+    protected $slug;
 
     /**
      * @var string $shortTitle
      *
      * @ORM\Column(name="short_title", type="string", length=8)
      */
-    private $shortTitle;
+    protected $shortTitle;
 
     /**
      * @var string $body
      *
      * @ORM\Column(name="body", type="string", length=255, nullable=true)
      */
-    private $body;
+    protected $body;
 
     /**
      * @var \DateTime $dateCreated
      *
      * @ORM\Column(name="date_created", type="datetime")
      */
-    private $dateCreated;
+    protected $dateCreated;
 
     /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
-    private $dateModified;
+    protected $dateModified;
 
     /**
      * @var boolean $isDeleted
      *
      * @ORM\Column(name="is_deleted", type="boolean")
      */
-    private $isDeleted = false;
+    protected $isDeleted = false;
 
     /**
      * @var User $user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\BoardStat $stat
      */
-    private $stat;
+    protected $stat;
 
     /**
      * @var ArrayCollection $topics
      */
-    private $topics;
+    protected $topics;
 
     public function __construct()
     {
@@ -114,6 +121,43 @@ class Board
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     * @return Board
+     */
+    public function setSlug($slug = null)
+    {
+        if ($slug === null) {
+            // Found on Stackoverflow ~ originate from Symfony1 Jobeet
+            // replace non letter or digits by -
+            $slug = preg_replace('~[^\\pL\d]+~u', '-', $this->title);
+            // trim
+            $slug = trim($slug, '-');
+            // transliterate
+            $slug = iconv('utf-8', 'us-ascii//TRANSLIT', $slug);
+            // lowercase
+            $slug = strtolower($slug);
+            // remove unwanted characters
+            $slug = preg_replace('~[^-\w]+~', '', $slug);
+        }
+
+        $this->slug = $slug;
+    
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string 
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 
     /**

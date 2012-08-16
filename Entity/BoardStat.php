@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Cornichon\ForumBundle\Entity\BoardStat
  *
- * @Orm\MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class BoardStat
 {
@@ -18,26 +18,26 @@ class BoardStat
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var integer $posts
      *
      * @ORM\Column(name="posts", type="integer")
      */
-    private $posts = 0;
+    protected $posts = 0;
 
     /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
-    private $dateModified;
+    protected $dateModified;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Board $board
      */
-    private $board;
+    protected $board;
 
     /**
      * Get id

@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Cornichon\ForumBundle\Entity\Topic
  *
- * @Orm\MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class Topic
 {
@@ -19,55 +19,62 @@ class Topic
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $title
      *
      * @ORM\Column(name="title", type="string", length=128)
      */
-    private $title;
+    protected $title;
+
+    /**
+     * @var string $slug
+     *
+     * @ORM\Column(name="slug", type="string", length=32)
+     */
+    protected $slug;
 
     /**
      * @var \DateTime $dateCreated
      *
      * @ORM\Column(name="date_created", type="datetime")
      */
-    private $dateCreated;
+    protected $dateCreated;
 
     /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
-    private $dateModified;
+    protected $dateModified;
 
     /**
      * @var boolean $isDeleted
      *
      * @ORM\Column(name="is_deleted", type="boolean")
      */
-    private $isDeleted = false;
+    protected $isDeleted = false;
 
     /**
      * @var User $user
      */
-    private $user;
+    protected $user;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\TopicStat $stat
      */
-    private $stat;
+    protected $stat;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Board $board
      */
-    private $board;
+    protected $board;
 
     /**
      * @var ArrayCollection
      */
-    private $messages;
+    protected $messages;
 
     public function __construct()
     {
@@ -105,6 +112,43 @@ class Topic
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     * @return Topic
+     */
+    public function setSlug($slug = null)
+    {
+        if ($slug === null) {
+            // Found on Stackoverflow ~ originate from Symfony1 Jobeet
+            // replace non letter or digits by -
+            $slug = preg_replace('~[^\\pL\d]+~u', '-', $this->title);
+            // trim
+            $slug = trim($slug, '-');
+            // transliterate
+            $slug = iconv('utf-8', 'us-ascii//TRANSLIT', $slug);
+            // lowercase
+            $slug = strtolower($slug);
+            // remove unwanted characters
+            $slug = preg_replace('~[^-\w]+~', '', $slug);
+        }
+
+        $this->slug = $slug;
+    
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string 
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 
     /**
@@ -220,6 +264,29 @@ class Topic
     public function getStat()
     {
         return $this->stat;
+    }
+
+    /**
+     * Set board
+     *
+     * @param \Cornichon\ForumBundle\Entity\Board $stat
+     * @return Topic
+     */
+    public function setBoard(\Cornichon\ForumBundle\Entity\Board $board)
+    {
+        $this->board = $board;
+
+        return $this;
+    }
+
+    /**
+     * Get board
+     *
+     * @return \Cornichon\ForumBundle\Entity\Board
+     */
+    public function getBoard()
+    {
+        return $this->board;
     }
 
     /**
