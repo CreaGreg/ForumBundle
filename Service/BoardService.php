@@ -35,6 +35,13 @@ class BoardService extends BaseService {
 					->getLatestBoards($offset, $limit);
 	}
 
+	public function getPopularBoards($offset, $limit)
+	{
+		return $this->em
+					->getRepository($this->boardRepositoryClass)
+					->getPopularBoards($offset, $limit);
+	}
+
 	public function save ($board)
 	{
 		if ($board->getUser() === null) {

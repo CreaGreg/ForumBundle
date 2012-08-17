@@ -26,11 +26,21 @@ class MessageService extends BaseService
 			throw new \Cornichon\ForumBundle\Exception\TopicNotSetException();
 		}
 
+		/**
+		 * Only increment topic stat when a user adds a response to a topic
+		 */
 		if ($isTopic === false) {
 			$message->getTopic()->getStat()->setPosts(
 				$message->getTopic()->getStat()->getPosts() + 1
 			);
 		}
+
+		/**
+		 * Always increment board stat when a user adds a topic or a message
+		 */
+		$message->getTopic()->getBoard()->getStat()->setPosts(
+			$message->getTopic()->getBoard()->getStat()->getPosts() + 1
+		);
 
 		if ($message->getId() === null) {
 			$message->setDateCreated(new \DateTime());

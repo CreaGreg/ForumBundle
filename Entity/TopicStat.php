@@ -176,4 +176,34 @@ class TopicStat
     {
         return $this->topic;
     }
+
+    /**
+     * Convenient methods
+     */
+
+    /**
+     * Get a short value of the number of posts
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @return integer
+     */
+    public function getShortPosts()
+    {
+        if ($this->posts < 1000) {
+            return $this->posts;
+        }
+        else if ($this->posts < 10000) {
+            return round($this->posts / 1000, 1) ."K";
+        }
+        else if ($this->posts < 1000000) {
+            return round($this->posts / 1000) ."K";
+        }
+        else if ($this->posts < 1000000) {
+            return round($this->posts / 1000000) . "M";
+        }
+    }
 }

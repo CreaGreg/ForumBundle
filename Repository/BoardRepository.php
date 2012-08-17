@@ -36,4 +36,17 @@ class BoardRepository extends EntityRepository
 		return new Paginator($query, false);
 	}
 
+	public function getPopularBoards($offset, $limit)
+	{
+		$query = $this->createQueryBuilder('b')
+					  ->select(array('b', 's'))
+					  ->join('b.stat', 's')
+					  ->orderBy('s.posts', 'DESC')
+					  ->getQuery()
+					  ->setFirstResult($offset)
+					  ->setMaxResults($limit);
+
+		return new Paginator($query, false);
+	}
+
 }

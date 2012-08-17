@@ -28,6 +28,13 @@ class BoardStat
     protected $posts = 0;
 
     /**
+     * @var integer $topics
+     *
+     * @ORM\Column(name="topics", type="integer")
+     */
+    protected $topics = 0;
+
+    /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
@@ -70,6 +77,29 @@ class BoardStat
     public function getPosts()
     {
         return $this->posts;
+    }
+
+    /**
+     * Set topics
+     *
+     * @param integer $topics
+     * @return BoardStat
+     */
+    public function setTopics($topics)
+    {
+        $this->topics = $topics;
+    
+        return $this;
+    }
+
+    /**
+     * Get topics
+     *
+     * @return integer 
+     */
+    public function getTopics()
+    {
+        return $this->topics;
     }
 
     /**
@@ -116,5 +146,61 @@ class BoardStat
     public function getBoard()
     {
         return $this->board;
+    }
+
+    /**
+     * Convenient methods
+     */
+
+    /**
+     * Get a short value of the number of posts
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @return integer
+     */
+    public function getShortPosts()
+    {
+        if ($this->posts < 1000) {
+            return $this->posts;
+        }
+        else if ($this->posts < 10000) {
+            return round($this->posts / 1000, 1) ."K";
+        }
+        else if ($this->posts < 1000000) {
+            return round($this->posts / 1000) ."K";
+        }
+        else if ($this->posts < 1000000) {
+            return round($this->posts / 1000000) . "M";
+        }
+    }
+
+    /**
+     * Get a short value of the number of topics
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @return integer
+     */
+    public function getShortTopics()
+    {
+        if ($this->topics < 1000) {
+            return $this->topics;
+        }
+        else if ($this->topics < 10000) {
+            return round($this->topics / 1000, 1) ."K";
+        }
+        else if ($this->topics < 1000000) {
+            return round($this->topics / 1000) ."K";
+        }
+        else if ($this->topics < 1000000) {
+            return round($this->topics / 1000000) . "M";
+        }
     }
 }
