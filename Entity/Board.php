@@ -24,21 +24,21 @@ class Board
     /**
      * @var string $title
      *
-     * @ORM\Column(name="title", type="string", length=32)
+     * @ORM\Column(name="title", type="string", length=64)
      */
     protected $title;
 
     /**
      * @var string $slug
      *
-     * @ORM\Column(name="slug", type="string", length=32)
+     * @ORM\Column(name="slug", type="string", length=64)
      */
     protected $slug;
 
     /**
      * @var string $shortTitle
      *
-     * @ORM\Column(name="short_title", type="string", length=8)
+     * @ORM\Column(name="short_title", type="string", length=16)
      */
     protected $shortTitle;
 
@@ -71,6 +71,16 @@ class Board
     protected $isDeleted = false;
 
     /**
+     * @var ArrayCollection $children
+     */
+    protected $children;
+
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Board $parent
+     */
+    protected $parent;
+
+    /**
      * @var User $user
      */
     protected $user;
@@ -88,6 +98,7 @@ class Board
     public function __construct()
     {
         $this->topics = new ArrayCollection();
+        $this->children = new ArrayCollection();
     }
 
     /**
@@ -134,7 +145,7 @@ class Board
         if ($slug === null) {
             // Found on Stackoverflow ~ originate from Symfony1 Jobeet
             // replace non letter or digits by -
-            $slug = preg_replace('~[^\\pL\d]+~u', '-', $this->title);
+            $slug = preg_replace('~[^\\pL\d]+~u', '-', $this->shortTitle);
             // trim
             $slug = trim($slug, '-');
             // transliterate
@@ -341,5 +352,88 @@ class Board
     public function getTopics()
     {
         return $this->topics;
+    }
+
+    /**
+     * Add board child
+     *
+     * @param Board $board
+     * @return Board
+     */
+    public function addChild(Board $board)
+    {
+        $this->children[] = $board;
+
+        return $this;
+    }
+
+    /**
+     * Set children
+     *
+     * @return Board
+     */
+    public function setChildren(ArrayCollection $children)
+    {
+        $this->children = $children;
+
+        return $this;
+    }
+
+    /**
+     * Get a collection of children
+     *
+     * @return ArrayCollection
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * Set board
+     *
+     * @param \Cornichon\ForumBundle\Entity\Board $parent
+     * @return Board
+     */
+    public function setParent(\Cornichon\ForumBundle\Entity\Board $parent)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Get board
+     *
+     * @return \Cornichon\ForumBundle\Entity\Board
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Get parent boards
+     *
+     * @return ArrayCollection
+     */
+    public function getParents()
+    {
+        $parents = array();
+
+        $this->loadParent($this, $parents);
+
+        return $parents;
+    }
+
+    /**
+     * Load the parent and its predecessors
+     */
+    private function loadParent($board, &$parents)
+    {
+        if ($board->getParent() !== null) {
+            $this->loadParent($board->getParent(), $parents);
+            $parents[] = $board->getParent();
+        }
     }
 }

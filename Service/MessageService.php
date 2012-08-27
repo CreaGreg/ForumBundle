@@ -6,6 +6,8 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
 class MessageService extends BaseService
 {
 
@@ -14,7 +16,12 @@ class MessageService extends BaseService
 		return $this->em->getRepository($this->messageRepositoryClass)->getMessagesByTopic($topic, $offset, $limit);
 	}
 
-	public function save (Message $message, $isTopic = false)
+	public function flag(Message $message, UserInterface $user)
+	{
+
+	}
+
+	public function save(Message $message, $isTopic = false)
 	{
 		if ($message->getUser() === null) {
 			$message->setUser(
@@ -41,6 +48,11 @@ class MessageService extends BaseService
 		$message->getTopic()->getBoard()->getStat()->setPosts(
 			$message->getTopic()->getBoard()->getStat()->getPosts() + 1
 		);
+
+		/**
+		 * Update the last message of topic
+		 */
+		$message->getTopic()->getStat()->setLastMessageDate(new \DateTime());
 
 		if ($message->getId() === null) {
 			$message->setDateCreated(new \DateTime());

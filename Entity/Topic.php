@@ -57,6 +57,20 @@ class Topic
     protected $isDeleted = false;
 
     /**
+     * @var boolean $isLocked
+     *
+     * @ORM\Column(name="is_locked", type="boolean")
+     */
+    protected $isLocked = false;
+
+    /**
+     * @var boolean $isPinned
+     *
+     * @ORM\Column(name="is_pinned", type="boolean")
+     */
+    protected $isPinned = false;
+
+    /**
      * @var User $user
      */
     protected $user;
@@ -221,6 +235,52 @@ class Topic
     }
 
     /**
+     * Set isLocked
+     *
+     * @param boolean $isLocked
+     * @return Topic
+     */
+    public function setIsLocked($isLocked)
+    {
+        $this->isLocked = $isLocked;
+    
+        return $this;
+    }
+
+    /**
+     * Get isLocked
+     *
+     * @return boolean 
+     */
+    public function isLocked()
+    {
+        return $this->isLocked;
+    }
+
+    /**
+     * Set isPinned
+     *
+     * @param boolean $isPinned
+     * @return Topic
+     */
+    public function setIsPinned($isPinned)
+    {
+        $this->isPinned = $isPinned;
+    
+        return $this;
+    }
+
+    /**
+     * Get isPinned
+     *
+     * @return boolean 
+     */
+    public function isPinned()
+    {
+        return $this->isPinned;
+    }
+
+    /**
      * Set user
      *
      * @param UserInterface $user
@@ -269,7 +329,7 @@ class Topic
     /**
      * Set board
      *
-     * @param \Cornichon\ForumBundle\Entity\Board $stat
+     * @param \Cornichon\ForumBundle\Entity\Board $board
      * @return Topic
      */
     public function setBoard(\Cornichon\ForumBundle\Entity\Board $board)

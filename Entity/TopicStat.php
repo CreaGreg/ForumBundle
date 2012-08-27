@@ -42,6 +42,12 @@ class TopicStat
     protected $dateModified;
 
     /**
+     * @var \DateTime $lastMessageDate
+     * @ORM\Column(name="last_message_date", type="datetime", nullable=true)
+     */
+    protected $lastMessageDate;
+
+    /**
      * @var User $user
      */
     protected $lastUser;
@@ -155,6 +161,29 @@ class TopicStat
     }
 
     /**
+     * Set lastMessageDate
+     *
+     * @param \DateTime $lastMessageDate
+     * @return TopicStat
+     */
+    public function setLastMessageDate($lastMessageDate)
+    {
+        $this->lastMessageDate = $lastMessageDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get lastMessageDate
+     *
+     * @return \DateTime 
+     */
+    public function getLastMessageDate()
+    {
+        return $this->lastMessageDate;
+    }
+
+    /**
      * Set topic
      *
      * @param \Cornichon\ForumBundle\Entity\Topic $topic
@@ -183,27 +212,49 @@ class TopicStat
 
     /**
      * Get a short value of the number of posts
+     *
+     * @return string
+     */
+    public function getShortPosts()
+    {
+        return $this->convertFormat($this->posts);
+    }
+
+    /**
+     * Get a short value of the number of views
+     *
+     * @return string
+     */
+    public function getShortViews()
+    {
+        return $this->convertFormat($this->views);
+    }
+
+    /**
+     * Convert an integer into a short string
+     *
      * 1000 -> 1K
      * 1500 -> 1.5K
      * 150500 -> 150K
      * 1000000 -> 1M
      * 1500000 -> 1.5M
      *
+     * @param  integer  $var
      * @return integer
      */
-    public function getShortPosts()
-    {
-        if ($this->posts < 1000) {
-            return $this->posts;
+    protected function convertFormat($var)
+    {   
+        if ($var < 1000) {
+            return $var;
         }
-        else if ($this->posts < 10000) {
-            return round($this->posts / 1000, 1) ."K";
+        else if ($var < 10000) {
+            return round($var / 1000, 1) ."K";
         }
-        else if ($this->posts < 1000000) {
-            return round($this->posts / 1000) ."K";
+        else if ($var < 1000000) {
+            return round($var / 1000) ."K";
         }
-        else if ($this->posts < 1000000) {
-            return round($this->posts / 1000000) . "M";
+        else if ($var < 1000000) {
+            return round($var / 1000000) . "M";
         }
     }
 }

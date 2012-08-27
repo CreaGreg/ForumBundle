@@ -2,6 +2,9 @@ parameters:
     cornichon_forum.board_service.class: Cornichon\ForumBundle\Service\BoardService
     cornichon_forum.topic_service.class: Cornichon\ForumBundle\Service\TopicService
     cornichon_forum.message_service.class: Cornichon\ForumBundle\Service\MessageService
+    cornichon_forum.main_service.class: Cornichon\ForumBundle\Service\MainService
+    cornichon_forum.date_extension.class: Cornichon\ForumBundle\Extension\Date
+    cornichon_forum.path_extension.class: Cornichon\ForumBundle\Extension\Path
 
     cornichon_forum.board_repository.class: 'CornichonForumBundle:Board'
     cornichon_forum.topic_repository.class: 'CornichonForumBundle:Topic'
@@ -16,4 +19,15 @@ services:
         arguments: [@service_container]
     cornichon.forum.message:
         class: %cornichon_forum.message_service.class%
+        arguments: [@service_container]
+    cornichon.forum:
+        class: %cornichon_forum.main_service.class%
+        arguments: [@service_container]
+    cornichon.date:
+        class: %cornichon_forum.date_extension.class%
+        tags: [{ name: twig.extension }]
+        arguments: [@service_container]
+    cornichon.path:
+        class: %cornichon_forum.path_extension.class%
+        tags: [{ name: twig.extension }]
         arguments: [@service_container]

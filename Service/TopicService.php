@@ -10,6 +10,8 @@ use Cornichon\ForumBundle\Entity\Message;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 class TopicService extends BaseService {
 
 	protected function createTopicStat()
@@ -34,7 +36,17 @@ class TopicService extends BaseService {
 		return $this->em->getRepository($this->topicRepositoryClass)->getLatestTopicsByBoard($board, $offset, $limit);
 	}
 
-	public function save (Topic $topic)
+	public function getAll()
+	{
+		return new ArrayCollection($this->em->getRepository($this->topicRepositoryClass)->findAll());
+	}
+
+	public function flag(Topic $topic, UserInterface $user)
+	{
+
+	}
+
+	public function save(Topic $topic)
 	{
 		if ($topic->getUser() === null) {
 			$topic->setUser(
@@ -55,6 +67,8 @@ class TopicService extends BaseService {
 			$topicStat->setTopic($topic);
 			$topicStat->setLastUser($topic->getUser());
 			$this->em->persist($topicStat);
+
+			$topic->setStat($topicStat);
 		}
 
 		if ($topic->getId() === null) {

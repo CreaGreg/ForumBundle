@@ -14,7 +14,7 @@ class TopicRepository extends EntityRepository
 					  ->join('t.user', 'u')
 					  ->join('t.stat', 's')
 					  ->join('s.lastUser', 'l')
-					  ->orderBy('t.id', 'DESC')
+					  ->orderBy('t.dateCreated', 'DESC')
 					  ->getQuery()
 					  ->setFirstResult($offset)
 					  ->setMaxResults($limit);
@@ -30,7 +30,7 @@ class TopicRepository extends EntityRepository
 					  ->join('t.stat', 's')
 					  ->join('s.lastUser', 'l')
 					  ->where('t.board = :board')->setParameter('board', $board)
-					  ->orderBy('t.id', 'DESC')
+					  ->orderBy('t.dateCreated', 'DESC')
 					  ->getQuery()
 					  ->setFirstResult($offset)
 					  ->setMaxResults($limit);

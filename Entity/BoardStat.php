@@ -154,53 +154,49 @@ class BoardStat
 
     /**
      * Get a short value of the number of posts
-     * 1000 -> 1K
-     * 1500 -> 1.5K
-     * 150500 -> 150K
-     * 1000000 -> 1M
-     * 1500000 -> 1.5M
      *
-     * @return integer
+     * @return string
      */
     public function getShortPosts()
     {
-        if ($this->posts < 1000) {
-            return $this->posts;
-        }
-        else if ($this->posts < 10000) {
-            return round($this->posts / 1000, 1) ."K";
-        }
-        else if ($this->posts < 1000000) {
-            return round($this->posts / 1000) ."K";
-        }
-        else if ($this->posts < 1000000) {
-            return round($this->posts / 1000000) . "M";
-        }
+        return $this->convertFormat($this->posts);
     }
 
     /**
      * Get a short value of the number of topics
+     *
+     * @return string
+     */
+    public function getShortTopics()
+    {
+        return $this->convertFormat($this->topics);
+    }
+
+    /**
+     * Convert an integer into a short string
+     *
      * 1000 -> 1K
      * 1500 -> 1.5K
      * 150500 -> 150K
      * 1000000 -> 1M
      * 1500000 -> 1.5M
      *
-     * @return integer
+     * @param  integer  $var
+     * @return string
      */
-    public function getShortTopics()
-    {
-        if ($this->topics < 1000) {
-            return $this->topics;
+    protected function convertFormat($var)
+    {   
+        if ($var < 1000) {
+            return $var;
         }
-        else if ($this->topics < 10000) {
-            return round($this->topics / 1000, 1) ."K";
+        else if ($var < 10000) {
+            return round($var / 1000, 1) ."K";
         }
-        else if ($this->topics < 1000000) {
-            return round($this->topics / 1000) ."K";
+        else if ($var < 1000000) {
+            return round($var / 1000) ."K";
         }
-        else if ($this->topics < 1000000) {
-            return round($this->topics / 1000000) . "M";
+        else if ($var < 1000000) {
+            return round($var / 1000000) . "M";
         }
     }
 }
