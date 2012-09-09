@@ -2,7 +2,7 @@
 
 namespace Cornichon\ForumBundle\Repository;
 
-use Loverz\ForumBundle\Entity\Board;
+use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\BoardStat;
 
 use Doctrine\Common\Collections\ArrayCollection;
