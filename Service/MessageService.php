@@ -43,19 +43,29 @@ class MessageService extends BaseService
 		}
 
 		/**
-		 * Always increment board stat when a user adds a topic or a message
-		 */
-		$message->getTopic()->getBoard()->getStat()->setPosts(
-			$message->getTopic()->getBoard()->getStat()->getPosts() + 1
-		);
-
-		/**
 		 * Update the last message of topic
 		 */
 		$message->getTopic()->getStat()->setLastMessageDate(new \DateTime());
 
 		if ($message->getId() === null) {
 			$message->setDateCreated(new \DateTime());
+
+			if ($isTopic === false) {
+				/**
+				 * Increment board message count when creating a new message
+				 */
+				$this->container
+					 ->get('cornichon.forum.board')
+					 ->incrementStatPosts($message->getTopic()->getBoard());
+			}
+			else {
+				/**
+				 * Increment board topic count when creating a new topic
+				 */
+				$this->container
+					 ->get('cornichon.forum.board')
+					 ->incrementStatTopics($message->getTopic()->getBoard());
+			}
 		}
 		else {
 			$message->getDateModified(new \DateTime());

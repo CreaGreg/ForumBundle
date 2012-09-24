@@ -41,6 +41,11 @@ class TopicService extends BaseService {
 		return new ArrayCollection($this->em->getRepository($this->topicRepositoryClass)->findAll());
 	}
 
+	public function moveFromBoardToBoard(Board $from, Board $to)
+	{
+		return $this->em->getRepository($this->topicRepositoryClass)->moveFromBoardToBoard($from, $to);
+	}
+
 	public function flag(Topic $topic, UserInterface $user)
 	{
 

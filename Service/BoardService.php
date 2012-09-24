@@ -30,14 +30,14 @@ class BoardService extends BaseService {
 			            ->getMainBoards();
 	}
 
-	public function getBoards()
+	public function getBoards($deleted = false)
 	{
 		/**
 		 * Get all the board id and their parent ids
 		 */
 		$ids = $this->em
 					->getRepository($this->boardRepositoryClass)
-					->getBoardIdsRaw();
+					->getBoardIdsRaw($deleted);
 
 		/**
 		 * Create a map array board_id => parent_id
@@ -52,14 +52,14 @@ class BoardService extends BaseService {
 		 */
 		$mainBoards = $this->em
 		            ->getRepository($this->boardRepositoryClass)
-		            ->getMainBoards();
+		            ->getMainBoards($deleted);
 
 		/**
 		 * Get all the boards
 		 */
 		$boards = $this->em
 			            ->getRepository($this->boardRepositoryClass)
-			            ->getBoards();
+			            ->getBoards($deleted);
 		/**
 		 * Reorganize and make it a map
 		 */
@@ -127,9 +127,7 @@ class BoardService extends BaseService {
 			);
 		}
 
-		if ($board->getSlug() === null) {
-			$board->setSlug();
-		}
+		$board->setSlug();
 
 		if ($board->getId() === null) {
 			$board->setDateCreated(new \DateTime());
@@ -165,5 +163,105 @@ class BoardService extends BaseService {
         $boardSlug .= $board->getSlug();
 
         return $boardSlug;
+    }
+
+    public function changeBoardParent(Board $original, Board $destination)
+    {
+		return $this->em
+					->getRepository($this->boardRepositoryClass)
+					->changeBoardParent($original, $destination);
+    }
+
+    public function incrementStatTopics(Board $board, $increment = 1)
+    {
+        $board->getStat()->setTopics(
+            $board->getStat()->getTopics() + $increment
+        );
+
+        $this->em->persist($board);
+
+        if ($board->getParent() !== null) {
+            $this->incrementStatTopics($board->getParent());
+        }
+    }
+
+    public function incrementStatPosts(Board $board, $increment = 1) 
+    {
+        $board->getStat()->setPosts(
+            $board->getStat()->getPosts() + $increment
+        );
+
+        $this->em->persist($board);
+
+        if ($board->getParent() !== null) {
+            $this->incrementStatPosts($board->getParent());
+        }
+    }
+
+    public function moveContent(Board $original, Board $destination)
+    {
+    	$posts = $original->getStat()->getPosts();
+    	$topics = $original->getStat()->getTopics();
+
+    	// Make sure the destination is not the children of the source
+    	$board = $destination->getParent();
+    	do {
+    		if ($board->getId() === $original->getId()) {
+    			throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
+    		}
+    		$board = $board->getParent();
+    	} while ($board !== null);
+
+    	$outOfScope = $this->recurciveMoveNegation($original->getParent(), $destination, $posts, $topics);
+    	if ($outOfScope === true) {
+    		$this->recurciveMoveAddition($original, $destination, $posts, $topics);
+    	}
+
+    	$this->container
+    		 ->get('cornichon.forum.topic')
+    		 ->moveFromBoardToBoard($original, $destination);
+
+    	// $this->changeBoardParent($original, $destination);
+
+    	$this->em->flush();
+    }
+
+    private function recurciveMoveNegation(Board $source, Board $destination, $posts, $topics)
+    {
+    	if ($source->getId() === $destination->getId()) {
+    		return false;
+    	}
+    	else {
+    		$source->getStat()->setPosts(
+    			$source->getStat()->getPosts() - $posts
+    		);
+    		$source->getStat()->setTopics(
+    			$source->getStat()->getTopics() - $topics
+    		);
+    		$this->em->persist($source->getStat());
+    	}
+
+    	if ($source->getParent() !== null) {
+    		return $this->recurciveMoveNegation($source->getParent(), $destination, $posts, $topics);
+    	}
+    	else {
+    		return true;
+    	}
+    }
+
+    private function recurciveMoveAddition(Board $source, Board $destination, $posts, $topics)
+    {
+    	$destination->getStat()->setPosts(
+			$destination->getStat()->getPosts() + $posts
+		);
+		$destination->getStat()->setTopics(
+			$destination->getStat()->getTopics() + $topics
+		);
+    	
+		$this->em->persist($destination->getStat());
+
+    	if ($destination->getParent() !== null) {
+    		$this->recurciveMoveAddition($source, $destination->getParent(), $posts, $topics);
+    	}
     }
 }

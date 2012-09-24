@@ -2,6 +2,11 @@
 
 namespace Cornichon\ForumBundle\Repository;
 
+use Cornichon\ForumBundle\Entity\Board;
+use Cornichon\ForumBundle\Entity\Topic;
+use Cornichon\ForumBundle\Entity\TopicStat;
+use Cornichon\ForumBundle\Entity\Message;
+
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -36,6 +41,16 @@ class TopicRepository extends EntityRepository
 					  ->setMaxResults($limit);
 
 		return new Paginator($query, false);
+	}
+
+	public function moveFromBoardToBoard(Board $from, Board $to)
+	{
+		return $this->createQueryBuilder('t')
+			->update('t')
+            ->set('t.board', $to)
+            ->where('t.board = :board')->setParameter('board', $from)
+            ->getQuery()
+            ->execute();
 	}
 
 }

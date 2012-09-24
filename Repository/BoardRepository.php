@@ -11,77 +11,119 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BoardRepository extends EntityRepository
 {
+    public function find($id, $deleted = false)
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+                             ->select(array('b', 's'))
+                             ->join('b.stat', 's')
+                             ->where('b.id = :id')->setParameter('id', $id);
 
-	public function getBoards()
-	{
-		$query = $this->createQueryBuilder('b')
-					  ->select(array('b', 's'))
-					  ->join('b.stat', 's')
-					  ->getQuery();
+        if ($deleted !== null) {
+            $queryBuilder->andWhere('b.isDeleted = :isDeleted')
+                         ->setParameter('isDeleted', $deleted);
+        }
+                      
+        $query = $queryBuilder->getQuery();
 
-		return new Paginator($query, false);
-	}
+        try {
+            return $query->getSingleResult();
+        } catch (\Doctrine\Orm\NoResultException $e) {
+            return null;
+        }
+    }
 
-	public function getMainBoards()
-	{
-		$query = $this->createQueryBuilder('b')
-					  ->select(array('b', 's'))
-					  ->where('b.parent IS NULL')
-					  ->join('b.stat', 's')
-					  ->getQuery();
+    public function getBoards($deleted = false)
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+                             ->select(array('b', 's'))
+                             ->join('b.stat', 's');
 
-		return new ArrayCollection($query->getResult());
-	}
+        if ($deleted !== null) {
+            $queryBuilder->andWhere('b.isDeleted = :isDeleted')
+                         ->setParameter('isDeleted', $deleted);
+        }
+        
+        $query = $queryBuilder->getQuery();
 
-	public function getBoardsByParentBoards(ArrayCollection $boards)
-	{
-		$boardIds = array();
-		foreach ($boards as $board) {
-			$boardIds[] = $board->getId();
-		}
+        return new Paginator($query, false);
+    }
 
-		$queryBuilder = $this->createQueryBuilder('b')
-					  ->select(array('b', 's'));
-		$queryBuilder->where($queryBuilder->expr()->in('b.parent', $boardIds))
-					  ->join('b.stat', 's');
+    public function getMainBoards($deleted = false)
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+                             ->select(array('b', 's'))
+                             ->where('b.parent IS NULL')
+                             ->join('b.stat', 's');
 
-		$query = $queryBuilder->getQuery();
+        if ($deleted !== null) {
+            $queryBuilder->andWhere('b.isDeleted = :isDeleted')
+                         ->setParameter('isDeleted', $deleted);
+        }
+        
+        $query = $queryBuilder->getQuery();
 
-		return new ArrayCollection($query->getResult());
-	}
+        return new ArrayCollection($query->getResult());
+    }
 
-	public function getBoardIdsRaw()
-	{
-		$connection = $this->getEntityManager()->getConnection();
+    public function getBoardsByParentBoards(ArrayCollection $boards)
+    {
+        $boardIds = array();
+        foreach ($boards as $board) {
+            $boardIds[] = $board->getId();
+        }
 
-		return $connection->fetchAll("SELECT id, parent_id FROM board");
-	}
+        $queryBuilder = $this->createQueryBuilder('b')
+                      ->select(array('b', 's'));
+        $queryBuilder->where($queryBuilder->expr()->in('b.parent', $boardIds))
+                      ->join('b.stat', 's');
 
-	public function getLatestBoards($offset, $limit)
-	{
-		$query = $this->createQueryBuilder('b')
-					  ->select(array('b', 's'))
-					  ->join('b.stat', 's')
-					  ->orderBy('b.id', 'DESC')
-					  ->getQuery()
-					  ->setFirstResult($offset)
-					  ->setMaxResults($limit);
+        $query = $queryBuilder->getQuery();
 
-		return new Paginator($query, false);
-	}
+        return new ArrayCollection($query->getResult());
+    }
 
-	public function getPopularBoards($offset, $limit)
-	{
-		$query = $this->createQueryBuilder('b')
-					  ->select(array('b', 's'))
-					  ->join('b.stat', 's')
-					  ->where('b.parent IS NULL')
-					  ->orderBy('s.posts', 'DESC')
-					  ->getQuery()
-					  ->setFirstResult($offset)
-					  ->setMaxResults($limit);
+    public function getBoardIdsRaw($deleted = false)
+    {
+        $connection = $this->getEntityManager()->getConnection();
 
-		return new Paginator($query, false);
-	}
+        return $connection->fetchAll("SELECT id, parent_id FROM board");
+    }
+
+    public function getLatestBoards($offset, $limit)
+    {
+        $query = $this->createQueryBuilder('b')
+                      ->select(array('b', 's'))
+                      ->join('b.stat', 's')
+                      ->orderBy('b.id', 'DESC')
+                      ->getQuery()
+                      ->setFirstResult($offset)
+                      ->setMaxResults($limit);
+
+        return new Paginator($query, false);
+    }
+
+    public function getPopularBoards($offset, $limit)
+    {
+        $query = $this->createQueryBuilder('b')
+                      ->select(array('b', 's'))
+                      ->join('b.stat', 's')
+                      ->where('b.parent IS NULL')
+                      ->orderBy('s.posts', 'DESC')
+                      ->getQuery()
+                      ->setFirstResult($offset)
+                      ->setMaxResults($limit);
+
+        return new Paginator($query, false);
+    }
+
+    public function changeBoardParent(Board $source, Board $destination)
+    {
+        return $this->createQueryBuilder('b')
+            ->update('b')
+            ->set('b.parent', $destination)
+            ->where('b.parent = :source')->setParameter('source', $source)
+            ->getQuery()
+            ->execute();
+    }
 
 }

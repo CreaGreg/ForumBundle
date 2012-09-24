@@ -58,6 +58,54 @@
                 <source>Popular.boards</source>
                 <target>Popular boards</target>
             </trans-unit>
+            <trans-unit id="15">
+                <source>Create.board</source>
+                <target>Create board</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>Edit.board</source>
+                <target>Edit board</target>
+            </trans-unit>
+            <trans-unit id="17">
+                <source>Edit.board.data</source>
+                <target>Edit board data</target>
+            </trans-unit>
+            <trans-unit id="18">
+                <source>Move.topics.and.delete.board</source>
+                <target>Move topics and delete board</target>
+            </trans-unit>
+            <trans-unit id="19">
+                <source>Move.topics.and.delete.board.notice</source>
+                <target>Before deleting a board you need to move its content. Pick the board you want to move the content to and click on the delete button.</target>
+            </trans-unit>
+            <trans-unit id="20">
+                <source>Delete</source>
+                <target>Delete</target>
+            </trans-unit>
+            <trans-unit id="21">
+                <source>Move.to</source>
+                <target>Move to</target>
+            </trans-unit>
+            <trans-unit id="22">
+                <source>and</source>
+                <target>and</target>
+            </trans-unit>
+            <trans-unit id="23">
+                <source>Move.content.to</source>
+                <target>Move content to</target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>Create.board.in.notice</source>
+                <target>You are about to create a board in board_name.</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>Create.board.at.the.main.level.notice</source>
+                <target>You are about to create a board at the top level.</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>Cannot.move.content.to.children</source>
+                <target>You can't move the content into the selected board's children.</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
