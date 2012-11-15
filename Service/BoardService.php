@@ -9,149 +9,301 @@ use Cornichon\ForumBundle\Entity\Message;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
-class BoardService extends BaseService {
+class BoardService extends BaseService
+{
 
-	protected function createBoardStat()
-	{
-		return new BoardStat();
-	}
+    protected function createBoardStat()
+    {
+        return new BoardStat();
+    }
 
-	public function getById($boardId)
-	{
-		return $this->em
-					->getRepository($this->boardRepositoryClass)
-					->find($boardId);
-	}
+    protected function createBoard()
+    {
+        return new Board();
+    }
 
-	public function getMainBoards()
-	{
-		return $this->em
-			            ->getRepository($this->boardRepositoryClass)
-			            ->getMainBoards();
-	}
+    /**
+     * Get a Board entity
+     * 
+     * @param  integer  $boardId
+     * 
+     * @return Board|null
+     */
+    public function getById($boardId)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->find($boardId);
+    }
 
-	public function getBoards($deleted = false)
-	{
-		/**
-		 * Get all the board id and their parent ids
-		 */
-		$ids = $this->em
-					->getRepository($this->boardRepositoryClass)
-					->getBoardIdsRaw($deleted);
+    /**
+     * Get a collection of the main boards
+     * 
+     * @return ArrayCollection
+     */
+    public function getMainBoards()
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getMainBoards();
+    }
 
-		/**
-		 * Create a map array board_id => parent_id
-		 */
-		$map = array();
-		foreach ($ids as $id) {
-			$map[$id['parent_id']][] = $id['id'];
-		}
+    /**
+     * Get a list of boards by parent board
+     * 
+     * @param  Board  $board
+     * 
+     * @return ArrayCollection
+     */
+    public function getBoardsByParentBoard(Board $board)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getBoardsByParentBoard($board);
+    }
 
-		/**
-		 * Get the main boards to use as a start point
-		 */
-		$mainBoards = $this->em
-		            ->getRepository($this->boardRepositoryClass)
-		            ->getMainBoards($deleted);
+    /**
+     * Get a list of boards by parent boards
+     * 
+     * @param  ArrayCollection $boards
+     * 
+     * @return ArrayCollection
+     */
+    public function getBoardsByParentBoards(ArrayCollection $boards)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getBoardsByParentBoards($boards);
+    }
 
-		/**
-		 * Get all the boards
-		 */
-		$boards = $this->em
-			            ->getRepository($this->boardRepositoryClass)
-			            ->getBoards($deleted);
-		/**
-		 * Reorganize and make it a map
-		 */
-		$allBoards = array();
-		foreach ($boards as $board) {
-			$allBoards[$board->getId()] = $board;
-		}
+    /**
+     * Gets all boards and build up the full hierarchie
+     * 
+     * @param  boolean  $deleted = false
+     * 
+     * @return ArrayCollection
+     */
+    public function getBoards($deleted = false)
+    {
+        /**
+         * Get all the board id and their parent ids
+         */
+        $ids = $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getBoardIdsRaw($deleted);
 
-		$this->processLayer($map, $mainBoards, $allBoards);
+        /**
+         * Create a map array board_id => parent_id
+         */
+        $map = array();
+        foreach ($ids as $id) {
+            $map[$id['parent_id']][] = $id['id'];
+        }
 
-		return $mainBoards;
-	}
+        /**
+         * Get the main boards to use as a start point
+         */
+        $mainBoards = $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getMainBoards($deleted);
 
-	private function processLayer($map, $boards, $allBoards)
-	{
-		$coll = new ArrayCollection();
-		foreach ($boards as $board) {
+        /**
+         * Get all the boards
+         */
+        $boards = $this->em
+                        ->getRepository($this->boardRepositoryClass)
+                        ->getBoards($deleted);
+        /**
+         * Reorganize and make it a map
+         */
+        $allBoards = array();
+        foreach ($boards as $board) {
+            $allBoards[$board->getId()] = $board;
+        }
 
-			if (array_key_exists($board->getId(), $map) === true) {
+        $this->processLayer($map, $mainBoards, $allBoards);
 
-				$tmpColl = new ArrayCollection();
+        return $mainBoards;
+    }
 
-				foreach ($map[$board->getId()] as $boardId) {
-					$tmpColl->add($allBoards[$boardId]);
-				}
+    /**
+     * Build an array of ids from all children of a board
+     * and recursively get the children of the children
+     * 
+     * @param  Board  $board
+     * 
+     * @return array
+     */
+    public function getChildrenIdsFromBoard(Board $board)
+    {
+        $ids = array();
 
-				$board->setChildren(
-					$this->processLayer($map, $tmpColl, $allBoards)
-				);
-			}
-			else {
-				$board->setChildren(new ArrayCollection());
-			}
+        foreach ($board->getChildren() as $b) {
+            $ids[] = $b->getId();
 
-			$coll->add($board);
+            if ($b->getChildren()->count() !== 0) {
+                $ids = array_merge($ids, $this->getChildrenIdsFromBoard($b));
+            }
+        }
 
-		}
-		return $coll;
-	}
+        return $ids;
+    }
 
-	public function getLatestBoards($offset, $limit)
-	{
-		return $this->em
-					->getRepository($this->boardRepositoryClass)
-					->getLatestBoards($offset, $limit);
-	}
+    /**
+     * Process each layer of the hierarchy
+     * 
+     * @param  array           $map       array(parentId => array(boardId, boardId, ...))
+     * @param  ArrayCollection $boards    collection of boards with the same parent board
+     * @param  array           $allBoards array(boardId => Board)
+     * 
+     * @return ArrayCollection
+     */
+    private function processLayer(array $map, ArrayCollection $boards, array $allBoards)
+    {
+        $coll = new ArrayCollection();
+        foreach ($boards as $board) {
 
-	public function getPopularBoards($offset, $limit)
-	{
-		return $this->em
-					->getRepository($this->boardRepositoryClass)
-					->getPopularBoards($offset, $limit);
-	}
+            if (array_key_exists($board->getId(), $map) === true) {
 
-	public function getAll()
-	{
-		return new ArrayCollection($this->em->getRepository($this->boardRepositoryClass)->findAll());
-	}
+                $tmpColl = new ArrayCollection();
 
-	public function save ($board)
-	{
-		if ($board->getUser() === null) {
-			$board->setUser(
-				$this->container->get('security.context')->getToken()->getUser()
-			);
-		}
+                foreach ($map[$board->getId()] as $boardId) {
+                    $tmpColl->add($allBoards[$boardId]);
+                }
 
-		$board->setSlug();
+                $board->setChildren(
+                    $this->processLayer($map, $tmpColl, $allBoards)
+                );
+            }
+            else {
+                $board->setChildren(new ArrayCollection());
+            }
 
-		if ($board->getId() === null) {
-			$board->setDateCreated(new \DateTime());
-		}
-		else {
-			$board->getDateModified(new \DateTime());
-		}
+            $coll->add($board);
 
-		$this->em->persist($board);
-		$this->em->flush($board);
+        }
+        return $coll;
+    }
 
-		if ($board->getStat() === null) {
-			$boardStat = $this->createBoardStat();
-			$boardStat->setBoard($board);
-			$this->em->persist($boardStat);
+    /**
+     * Get the latest boards based on the board id
+     * 
+     * @param  integer  $offset
+     * @param  integer  $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
+    public function getLatestBoards($offset, $limit)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getLatestBoards($offset, $limit);
+    }
 
-			$board->setStat($boardStat);
-		}
-		
-		$this->em->flush();
+    /**
+     * Get the popular boards based on the number of posts
+     * 
+     * @param  integer  $offset
+     * @param  integer  $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
+    public function getPopularBoards($offset, $limit)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->getPopularBoards($offset, $limit);
+    }
 
-		return $board;
-	}
+    /**
+     * Gets all boards
+     * Careful! If you have thousands of boards, your server will run out of memory
+     * 
+     * @return ArrayCollection
+     */
+    public function getAll()
+    {
+        return new ArrayCollection($this->em->getRepository($this->boardRepositoryClass)->findAll());
+    }
 
+    /**
+     * Delete a board
+     * Throws errors if the board is not clean
+     * 
+     * @param  Board  $board
+     * 
+     * @throws \Cornichon\ForumBundle\Exception\TopicExistsException
+     * @throws \Cornichon\ForumBundle\Exception\BoardExistsException
+     */
+    public function delete(Board $board)
+    {
+        $boards = $this->getBoardsByParentBoard($board);
+
+        if ($boards->count() !== 0) {
+            throw new \Cornichon\ForumBundle\Exception\BoardExistsException();
+        }
+
+        $topics = $this->container->get('cornichon.forum.topic')->getLatestTopicsByBoard($board, 0, 1);
+
+        if ($topics->count() !== 0) {
+            throw new \Cornichon\ForumBundle\Exception\TopicExistsException();
+        }
+
+        $this->em->remove($board->getStat());
+        $this->em->remove($board);
+        $this->em->flush();
+    }
+
+    /**
+     * Save a board and make sure all associations are built properly
+     * 
+     * @param  Board  $board
+     * 
+     * @return Board
+     */
+    public function save(Board $board)
+    {
+        // Pick a user if none was specified
+        if ($board->getUser() === null) {
+            $board->setUser($this->container->get('security.context')->getToken()->getUser());
+        }
+
+        // If the board slug hasn't been set, we set one
+        if ($board->getSlug() === null) {
+            $board->setSlug();
+        }
+
+        // If the board is new
+        if ($board->getId() === null) {
+            $board->setDateCreated(new \DateTime());
+        }
+        else {
+            $board->getDateModified(new \DateTime());
+        }
+
+        $this->em->persist($board);
+
+        if ($board->getStat() === null) {
+            $boardStat = $this->createBoardStat();
+            $boardStat->setBoard($board);
+            $this->em->persist($boardStat);
+
+            $board->setStat($boardStat);
+        }
+        
+        $this->em->flush();
+
+        return $board;
+    }
+
+    /**
+     * Build a single slug for a board
+     * It will go through the parent slug and attach them together
+     * 
+     * @param  Board  $board
+     * 
+     * @return string
+     */
     public function buildSlug(Board $board)
     {
         $parents = $board->getParents();
@@ -165,13 +317,28 @@ class BoardService extends BaseService {
         return $boardSlug;
     }
 
-    public function changeBoardParent(Board $original, Board $destination)
+    /**
+     * Change the parent board of all boards that has $original as a parent
+     * 
+     * @param  Board  $original 
+     * @param  Board  $destination 
+     * 
+     * @return integer
+     */
+    public function switchBoardParent(Board $original, Board $destination)
     {
-		return $this->em
-					->getRepository($this->boardRepositoryClass)
-					->changeBoardParent($original, $destination);
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->switchBoardParent($original, $destination);
     }
 
+    /**
+     * Add a given number to the topics count of a given board
+     * and bubbles up to its parents
+     * 
+     * @param  Board   $board
+     * @param  integer $increment = 1
+     */
     public function incrementStatTopics(Board $board, $increment = 1)
     {
         $board->getStat()->setTopics(
@@ -185,6 +352,13 @@ class BoardService extends BaseService {
         }
     }
 
+    /**
+     * Add a given number to the posts count of a given board
+     * and bubbles up to its parents
+     * 
+     * @param  Board   $board    
+     * @param  integer $increment = 1
+     */
     public function incrementStatPosts(Board $board, $increment = 1) 
     {
         $board->getStat()->setPosts(
@@ -198,70 +372,119 @@ class BoardService extends BaseService {
         }
     }
 
+    public function moveBoard(Board $original, Board $destination)
+    {
+        
+    }
+
+    /**
+     * Move the content of the original board into a destination board
+     * 
+     * @param  Board  $original    
+     * @param  Board  $destination
+     * 
+     * @throws \Cornichon\ForumBundle\Exception\InvalidBoardException
+     */
     public function moveContent(Board $original, Board $destination)
     {
-    	$posts = $original->getStat()->getPosts();
-    	$topics = $original->getStat()->getTopics();
+        if ($original->getId() === $destination->getId()) {
+            throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
+        }
 
-    	// Make sure the destination is not the children of the source
-    	$board = $destination->getParent();
-    	do {
-    		if ($board->getId() === $original->getId()) {
-    			throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
-    		}
-    		$board = $board->getParent();
-    	} while ($board !== null);
+        $posts = $original->getStat()->getPosts();
+        $topics = $original->getStat()->getTopics();
 
-    	$outOfScope = $this->recurciveMoveNegation($original->getParent(), $destination, $posts, $topics);
-    	if ($outOfScope === true) {
-    		$this->recurciveMoveAddition($original, $destination, $posts, $topics);
-    	}
+        // Make sure the destination is not the children of the source
+        $board = $destination->getParent();
+        while ($board !== null) {
+            if ($board->getId() === $original->getId()) {
+                throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
+            }
+            $board = $board->getParent();
+        }
 
-    	$this->container
-    		 ->get('cornichon.forum.topic')
-    		 ->moveFromBoardToBoard($original, $destination);
+        $outOfScope = true;
+        if ($original->getParent() !== null) {
+           $outOfScope = $this->recurciveMoveNegation($original->getParent(), $destination, $posts, $topics);
+        }
 
-    	// $this->changeBoardParent($original, $destination);
+        if ($outOfScope === true) {
+            $this->recurciveMoveAddition($destination, $posts, $topics);
+        }
 
-    	$this->em->flush();
+        // Move topics
+        $this->container
+             ->get('cornichon.forum.topic')
+             ->moveFromBoardToBoard($original, $destination);
+
+        // Move boards
+        $this->switchBoardParent($original, $destination);
+
+        $this->em->flush();
     }
 
-    private function recurciveMoveNegation(Board $source, Board $destination, $posts, $topics)
+    /**
+     * Progress through the parents of the given boards and decrease their 
+     * stats with given post and topic counts.
+     * If the destination board is reached it will stop recursive calls and return false
+     * If the destionation board is not reached it will return true
+     * 
+     * @param  Board   $source      
+     * @param  Board   $destination 
+     * @param  integer $posts       
+     * @param  integer $topics
+     *    
+     * @return boolean
+     */
+    private function recurciveMoveNegation($source, $destination, $posts, $topics)
     {
-    	if ($source->getId() === $destination->getId()) {
-    		return false;
-    	}
-    	else {
-    		$source->getStat()->setPosts(
-    			$source->getStat()->getPosts() - $posts
-    		);
-    		$source->getStat()->setTopics(
-    			$source->getStat()->getTopics() - $topics
-    		);
-    		$this->em->persist($source->getStat());
-    	}
+        if ($source->getId() === $destination->getId()) {
+            return false;
+        }
+        else {
+            $source->getStat()->setPosts(
+                $source->getStat()->getPosts() - $posts
+            );
+            $source->getStat()->setTopics(
+                $source->getStat()->getTopics() - $topics
+            );
+            $this->em->persist($source->getStat());
+        }
 
-    	if ($source->getParent() !== null) {
-    		return $this->recurciveMoveNegation($source->getParent(), $destination, $posts, $topics);
-    	}
-    	else {
-    		return true;
-    	}
+        if ($source->getParent() !== null) {
+            return $this->recurciveMoveNegation($source->getParent(), $destination, $posts, $topics);
+        }
+        else {
+            return true;
+        }
     }
 
-    private function recurciveMoveAddition(Board $source, Board $destination, $posts, $topics)
+    /**
+     * Progress through the parents of the given boards and increase their 
+     * stats with given post and topic counts
+     * 
+     * @param  Board   $board
+     * @param  integer $posts
+     * @param  integer $topics
+     * 
+     * @return boolean
+     */
+    private function recurciveMoveAddition($board, $posts, $topics)
     {
-    	$destination->getStat()->setPosts(
-			$destination->getStat()->getPosts() + $posts
-		);
-		$destination->getStat()->setTopics(
-			$destination->getStat()->getTopics() + $topics
-		);
-    	
-		$this->em->persist($destination->getStat());
+        $board->getStat()->setPosts(
+            $board->getStat()->getPosts() + $posts
+        );
+        $board->getStat()->setTopics(
+            $board->getStat()->getTopics() + $topics
+        );
+        
+        $this->em->persist($board->getStat());
 
-    	if ($destination->getParent() !== null) {
-    		$this->recurciveMoveAddition($source, $destination->getParent(), $posts, $topics);
-    	}
+        if ($board->getParent() !== null) {
+            return $this->recurciveMoveAddition($board->getParent(), $posts, $topics);
+        }
+        else {
+            return true;
+        }
     }
 }

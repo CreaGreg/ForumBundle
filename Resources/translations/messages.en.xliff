@@ -104,7 +104,55 @@
             </trans-unit>
             <trans-unit id="26">
                 <source>Cannot.move.content.to.children</source>
-                <target>You can't move the content into the selected board's children.</target>
+                <target>You can't move the content into the same board or into the selected board's children.</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>Board.not.found</source>
+                <target>Board is not found.</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>Board.selected.not.valid</source>
+                <target>The selected board is not valid.</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>Move.board</source>
+                <target>Move board</target>
+            </trans-unit>
+            <trans-unit id="30">
+                <source>Move.board.to</source>
+                <target>Move board to</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>Move</source>
+                <target>Move</target>
+            </trans-unit>
+            <trans-unit id="32">
+                <source>Undelete</source>
+                <target>Undelete</target>
+            </trans-unit>
+            <trans-unit id="33">
+                <source>Pin</source>
+                <target>Pin</target>
+            </trans-unit>
+            <trans-unit id="34">
+                <source>Unpin</source>
+                <target>Unpin</target>
+            </trans-unit>
+            <trans-unit id="35">
+                <source>Topic</source>
+                <target>Topic</target>
+            </trans-unit>
+            <trans-unit id="36">
+                <source>Board</source>
+                <target>Board</target>
+            </trans-unit>
+            <trans-unit id="37">
+                <source>Lock</source>
+                <target>Lock</target>
+            </trans-unit>
+            <trans-unit id="38">
+                <source>Unlock</source>
+                <target>Unlock</target>
             </trans-unit>
         </body>
     </file>

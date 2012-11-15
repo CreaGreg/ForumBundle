@@ -11,6 +11,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class MessageService extends BaseService
 {
 
+	protected function createMessage()
+	{
+		return new Message();
+	}
+
 	public function getMessagesByTopic($topic, $offset, $limit)
 	{
 		return $this->em->getRepository($this->messageRepositoryClass)->getMessagesByTopic($topic, $offset, $limit);
@@ -57,6 +62,15 @@ class MessageService extends BaseService
 				$this->container
 					 ->get('cornichon.forum.board')
 					 ->incrementStatPosts($message->getTopic()->getBoard());
+
+	            // Get the user stat
+	            $userStat = $this->container
+	                             ->get('cornichon.forum.user_stat')
+	                             ->getByUserOrCreateOne($message->getUser());
+
+	            $userStat->increaseTotalMessage();
+
+	            $this->em->persist($userStat);
 			}
 			else {
 				/**

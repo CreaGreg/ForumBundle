@@ -395,7 +395,7 @@ class Board
      * @param \Cornichon\ForumBundle\Entity\Board $parent
      * @return Board
      */
-    public function setParent(\Cornichon\ForumBundle\Entity\Board $parent)
+    public function setParent(\Cornichon\ForumBundle\Entity\Board $parent = null)
     {
         $this->parent = $parent;
 

@@ -4,8 +4,8 @@ namespace Cornichon\ForumBundle\Service;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class BaseService {
-
+class BaseService
+{
 	protected $container;
 	protected $em;
 
@@ -21,6 +21,7 @@ class BaseService {
 		$this->boardRepositoryClass = $this->container->getParameter('cornichon_forum.board_repository.class');
 		$this->topicRepositoryClass = $this->container->getParameter('cornichon_forum.topic_repository.class');
 		$this->messageRepositoryClass = $this->container->getParameter('cornichon_forum.message_repository.class');
+		$this->userStatRepositoryClass = $this->container->getParameter('cornichon_forum.user_stat_repository.class');
 	}
 
 

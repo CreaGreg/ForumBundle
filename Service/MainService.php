@@ -9,8 +9,17 @@ use Cornichon\ForumBundle\Entity\Message;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
-class MainService extends BaseService {
+class MainService extends BaseService
+{
 
+    /**
+     * Build a URL based on a given entity and a route
+     * 
+     * @param  string  $routeName
+     * @param  object  $entity
+     * 
+     * @return string
+     */
     public function forumPath($routeName, $entity = null)
     {
         $parameters = array();

@@ -11,6 +11,15 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class BoardRepository extends EntityRepository
 {
+
+    /**
+     * Get a Board entity
+     * 
+     * @param  integer  $boardId
+     * @param  boolean  $deleted = false
+     * 
+     * @return Board|null
+     */
     public function find($id, $deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
@@ -32,6 +41,13 @@ class BoardRepository extends EntityRepository
         }
     }
 
+    /**
+     * Gets all boards and build up the full hierarchie
+     * 
+     * @param  boolean $deleted = false
+     * 
+     * @return ArrayCollection
+     */
     public function getBoards($deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
@@ -48,6 +64,13 @@ class BoardRepository extends EntityRepository
         return new Paginator($query, false);
     }
 
+    /**
+     * Get the main boards
+     * 
+     * @param  boolean $deleted = false
+     * 
+     * @return ArrayCollection
+     */
     public function getMainBoards($deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
@@ -65,6 +88,32 @@ class BoardRepository extends EntityRepository
         return new ArrayCollection($query->getResult());
     }
 
+    /**
+     * Get a list of boards by parent board
+     * 
+     * @param  Board  $board
+     * 
+     * @return ArrayCollection
+     */
+    public function getBoardsByParentBoard(Board $board)
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+                      ->select(array('b', 's'))
+                      ->where('b.parent = :parent')->setParameter('parent', $board->getId())
+                      ->join('b.stat', 's');
+
+        $query = $queryBuilder->getQuery();
+
+        return new ArrayCollection($query->getResult());   
+    }
+
+    /**
+     * Get a list of boards by parent boards
+     * 
+     * @param  ArrayCollection $boards
+     * 
+     * @return ArrayCollection
+     */
     public function getBoardsByParentBoards(ArrayCollection $boards)
     {
         $boardIds = array();
@@ -82,6 +131,12 @@ class BoardRepository extends EntityRepository
         return new ArrayCollection($query->getResult());
     }
 
+    /**
+     * Get all board IDs
+     *
+     * @param  boolean $deleted = false
+     * @return array
+     */
     public function getBoardIdsRaw($deleted = false)
     {
         $connection = $this->getEntityManager()->getConnection();
@@ -89,6 +144,14 @@ class BoardRepository extends EntityRepository
         return $connection->fetchAll("SELECT id, parent_id FROM board");
     }
 
+    /**
+     * Get the latest boards based on the board id
+     * 
+     * @param  integer  $offset
+     * @param  integer  $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
     public function getLatestBoards($offset, $limit)
     {
         $query = $this->createQueryBuilder('b')
@@ -102,6 +165,14 @@ class BoardRepository extends EntityRepository
         return new Paginator($query, false);
     }
 
+    /**
+     * Get the popular boards based on the number of posts
+     * 
+     * @param  integer  $offset
+     * @param  integer  $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
     public function getPopularBoards($offset, $limit)
     {
         $query = $this->createQueryBuilder('b')
@@ -116,12 +187,20 @@ class BoardRepository extends EntityRepository
         return new Paginator($query, false);
     }
 
-    public function changeBoardParent(Board $source, Board $destination)
+    /**
+     * Change the parent board of all boards that has $original as a parent
+     * 
+     * @param  Board  $source 
+     * @param  Board  $destination 
+     * 
+     * @return integer
+     */
+    public function switchBoardParent(Board $source, Board $destination)
     {
         return $this->createQueryBuilder('b')
-            ->update('b')
-            ->set('b.parent', $destination)
-            ->where('b.parent = :source')->setParameter('source', $source)
+            ->update($this->getEntityName(), 'b')
+            ->set('b.parent', $destination->getId())
+            ->where('b.parent = :source')->setParameter('source', $source->getId())
             ->getQuery()
             ->execute();
     }
