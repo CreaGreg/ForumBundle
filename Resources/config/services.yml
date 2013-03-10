@@ -1,27 +1,37 @@
 parameters:
-    cornichon_forum.board_service.class: Cornichon\ForumBundle\Service\BoardService
-    cornichon_forum.topic_service.class: Cornichon\ForumBundle\Service\TopicService
-    cornichon_forum.message_service.class: Cornichon\ForumBundle\Service\MessageService
-    cornichon_forum.main_service.class: Cornichon\ForumBundle\Service\MainService
-    cornichon_forum.user_stat_service.class: Cornichon\ForumBundle\Service\UserStatService
-    cornichon_forum.date_extension.class: Cornichon\ForumBundle\Extension\Date
-    cornichon_forum.path_extension.class: Cornichon\ForumBundle\Extension\Path
-    cornichon_forum.data_access_extension.class: Cornichon\ForumBundle\Extension\DataAccess
+    cornichon_forum.board_service.class:            Cornichon\ForumBundle\Service\BoardService
+    cornichon_forum.flag_service.class:             Cornichon\ForumBundle\Service\FlagService
+    cornichon_forum.topic_service.class:            Cornichon\ForumBundle\Service\TopicService
+    cornichon_forum.message_service.class:          Cornichon\ForumBundle\Service\MessageService
+    cornichon_forum.moderation_service.class:       Cornichon\ForumBundle\Service\ModerationService
+    cornichon_forum.main_service.class:             Cornichon\ForumBundle\Service\MainService
+    cornichon_forum.user_stat_service.class:        Cornichon\ForumBundle\Service\UserStatService
+    cornichon_forum.date_extension.class:           Cornichon\ForumBundle\Extension\Date
+    cornichon_forum.path_extension.class:           Cornichon\ForumBundle\Extension\Path
+    cornichon_forum.data_access_extension.class:    Cornichon\ForumBundle\Extension\DataAccess
 
-    cornichon_forum.board_repository.class: 'CornichonForumBundle:Board'
-    cornichon_forum.topic_repository.class: 'CornichonForumBundle:Topic'
-    cornichon_forum.message_repository.class: 'CornichonForumBundle:Message'
-    cornichon_forum.user_stat_repository.class: 'CornichonForumBundle:UserStat'
+    cornichon_forum.board_repository.class:        'CornichonForumBundle:Board'
+    cornichon_forum.flag_repository.class:         'CornichonForumBundle:Flag'
+    cornichon_forum.topic_repository.class:        'CornichonForumBundle:Topic'
+    cornichon_forum.message_repository.class:      'CornichonForumBundle:Message'
+    cornichon_forum.moderation_repository.class:   'CornichonForumBundle:Moderation'
+    cornichon_forum.user_stat_repository.class:    'CornichonForumBundle:UserStat'
 
 services:
     cornichon.forum.board:
         class: %cornichon_forum.board_service.class%
+        arguments: [@service_container]
+    cornichon.forum.flag:
+        class: %cornichon_forum.flag_service.class%
         arguments: [@service_container]
     cornichon.forum.topic:
         class: %cornichon_forum.topic_service.class%
         arguments: [@service_container]
     cornichon.forum.message:
         class: %cornichon_forum.message_service.class%
+        arguments: [@service_container]
+    cornichon.forum.moderation:
+        class: %cornichon_forum.moderation_service.class%
         arguments: [@service_container]
     cornichon.forum.user_stat:
         class: %cornichon_forum.user_stat_service.class%

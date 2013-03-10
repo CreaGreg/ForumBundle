@@ -76,4 +76,18 @@ class UserStatService extends BaseService
                     ->getRepository($this->userStatRepositoryClass)
                     ->getByUser($user);
     }
+
+    /**
+     * Get top users
+     * 
+     * @param  integer $limit = 10
+     * 
+     * @return ArrayCollection
+     */
+    public function getTopUsers($limit = 10)
+    {
+        return $this->em
+                    ->getRepository($this->userStatRepositoryClass)
+                    ->getTopUsers($limit);
+    }
 }

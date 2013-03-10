@@ -5,11 +5,11 @@ namespace Cornichon\ForumBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Cornichon\ForumBundle\Entity\BoardStat
+ * Cornichon\ForumBundle\Entity\Stat
  *
  * @ORM\MappedSuperclass
  */
-class BoardStat
+class Stat
 {
     /**
      * @var integer $id
@@ -35,16 +35,18 @@ class BoardStat
     protected $topics = 0;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="boards", type="integer")
+     */
+    protected $boards = 0;
+
+    /**
      * @var \DateTime $dateModified
      *
      * @ORM\Column(name="date_modified", type="datetime", nullable=true)
      */
     protected $dateModified;
-
-    /**
-     * @var \Cornichon\ForumBundle\Entity\Board $board
-     */
-    protected $board;
 
     /**
      * Get id
@@ -60,7 +62,7 @@ class BoardStat
      * Set posts
      *
      * @param integer $posts
-     * @return BoardStat
+     * @return Stat
      */
     public function setPosts($posts)
     {
@@ -80,10 +82,38 @@ class BoardStat
     }
 
     /**
+     * Increase the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Stat
+     */
+    public function increasePosts($int = 1)
+    {
+        $this->posts += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Stat
+     */
+    public function decreasePosts($int = 1)
+    {
+        $this->posts -= $int;
+
+        return $this;
+    }
+
+    /**
      * Set topics
      *
      * @param integer $topics
-     * @return BoardStat
+     * @return Stat
      */
     public function setTopics($topics)
     {
@@ -103,10 +133,89 @@ class BoardStat
     }
 
     /**
+     * Increase the total of topics in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Stat
+     */
+    public function increaseTopics($int = 1)
+    {
+        $this->topics += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of topics in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Stat
+     */
+    public function decreaseTopics($int = 1)
+    {
+        $this->topics -= $int;
+
+        return $this;
+    }
+
+    /**
+     * Set boards
+     *
+     * @param integer $boards
+     * @return Stat
+     */
+    public function setBoards($boards)
+    {
+        $this->boards = $boards;
+    
+        return $this;
+    }
+
+    /**
+     * Get boards
+     *
+     * @return integer 
+     */
+    public function getBoards()
+    {
+        return $this->boards;
+    }
+
+    /**
+     * Increase the total of boards in the board
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Stat
+     */
+    public function increaseBoards($int = 1)
+    {
+        $this->boards += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of boards in the board
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Stat
+     */
+    public function decreaseBoards($int = 1)
+    {
+        $this->boards -= $int;
+
+        return $this;
+    }
+
+    /**
      * Set dateModified
      *
      * @param \DateTime $dateModified
-     * @return BoardStat
+     * @return Stat
      */
     public function setDateModified($dateModified)
     {
@@ -123,29 +232,6 @@ class BoardStat
     public function getDateModified()
     {
         return $this->dateModified;
-    }
-
-    /**
-     * Set board
-     *
-     * @param \Cornichon\ForumBundle\Entity\Board $board
-     * @return BoardStat
-     */
-    public function setBoard(\Cornichon\ForumBundle\Entity\Board $board)
-    {
-        $this->board = $board;
-
-        return $this;
-    }
-
-    /**
-     * Get board
-     *
-     * @return \Cornichon\ForumBundle\Entity\Board
-     */
-    public function getBoard()
-    {
-        return $this->board;
     }
 
     /**
@@ -170,6 +256,16 @@ class BoardStat
     public function getShortTopics()
     {
         return $this->convertFormat($this->topics);
+    }
+
+    /**
+     * Get a short value of the number of boards
+     *
+     * @return string
+     */
+    public function getShortBoards()
+    {
+        return $this->convertFormat($this->boards);
     }
 
     /**

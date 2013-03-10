@@ -71,6 +71,20 @@ class Board
     protected $isDeleted = false;
 
     /**
+     * @var integer $posts
+     *
+     * @ORM\Column(name="total_posts", type="integer")
+     */
+    protected $totalPosts = 0;
+
+    /**
+     * @var integer $topics
+     *
+     * @ORM\Column(name="total_topics", type="integer")
+     */
+    protected $totalTopics = 0;
+
+    /**
      * @var ArrayCollection $children
      */
     protected $children;
@@ -277,6 +291,109 @@ class Board
     }
 
     /**
+     * Set total posts
+     *
+     * @param integer $int
+     * 
+     * @return Board
+     */
+    public function setTotalPosts($int)
+    {
+        $this->totalPosts = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get total posts
+     *
+     * @return integer 
+     */
+    public function getTotalPosts()
+    {
+        return $this->totalPosts;
+    }
+
+    /**
+     * Increase the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Board
+     */
+    public function increaseTotalPosts($int = 1)
+    {
+        $this->totalPosts += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Board
+     */
+    public function decreaseTotalPosts($int = 1)
+    {
+        $this->totalPosts -= $int;
+
+        return $this;
+    }
+
+    /**
+     * Set totalTopics
+     *
+     * @param integer $int
+     * @return BoardStat
+     */
+    public function setTotalTopics($int)
+    {
+        $this->totalTopics = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get totalTopics
+     *
+     * @return integer 
+     */
+    public function getTotalTopics()
+    {
+        return $this->totalTopics;
+    }
+
+    /**
+     * Increase the total of topics in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Board
+     */
+    public function increaseTotalTopics($int = 1)
+    {
+        $this->totalTopics += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of topics in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Board
+     */
+    public function decreaseTotalTopics($int = 1)
+    {
+        $this->totalTopics -= $int;
+
+        return $this;
+    }
+
+    /**
      * Get isDeleted
      *
      * @return boolean 
@@ -307,29 +424,6 @@ class Board
     public function getUser()
     {
         return $this->user;
-    }
-
-    /**
-     * Set stat
-     *
-     * @param \Cornichon\ForumBundle\Entity\BoardStat $stat
-     * @return Board
-     */
-    public function setStat(\Cornichon\ForumBundle\Entity\BoardStat $stat)
-    {
-        $this->stat = $stat;
-
-        return $this;
-    }
-
-    /**
-     * Get stat
-     *
-     * @return \Cornichon\ForumBundle\Entity\BoardStat
-     */
-    public function getStat()
-    {
-        return $this->stat;
     }
 
     /**
@@ -434,6 +528,59 @@ class Board
         if ($board->getParent() !== null) {
             $this->loadParent($board->getParent(), $parents);
             $parents[] = $board->getParent();
+        }
+    }
+
+    /**
+     * Convenient methods
+     */
+
+    /**
+     * Get a short value of the number of posts
+     *
+     * @return string
+     */
+    public function getShortTotalPosts()
+    {
+        return $this->convertFormat($this->totalPosts);
+    }
+
+    /**
+     * Get a short value of the number of topics
+     *
+     * @return string
+     */
+    public function getShortTotalTopics()
+    {
+        return $this->convertFormat($this->totalTopics);
+    }
+
+    /**
+     * Convert an integer into a short string
+     *
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @param  integer  $var
+     * 
+     * @return string
+     */
+    protected function convertFormat($var)
+    {   
+        if ($var < 1000) {
+            return $var;
+        }
+        else if ($var < 10000) {
+            return round($var / 1000, 1) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000000) . "M";
         }
     }
 }

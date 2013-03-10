@@ -6,6 +6,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\ORM\EntityRepository;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * UserStatRepository
  *
@@ -35,5 +37,25 @@ class UserStatRepository extends EntityRepository
         } catch (\Doctrine\Orm\NoResultException $e) {
             return null;
         }
+    }
+
+    /**
+     * Get the top users
+     * 
+     * @param   integer  $limit = 10
+     * 
+     * @return  ArrayCollection
+     */
+    public function getTopUsers($limit = 10)
+    {
+        $queryBuilder = $this->createQueryBuilder('us')
+                             ->select(array('us'))
+                             ->orderBy('us.totalMessage', 'desc')
+                             ->addOrderBy('us.totalTopic', 'desc')
+                             ->setMaxResults($limit);
+
+        $query = $queryBuilder->getQuery();
+
+        return new ArrayCollection($query->getResult());
     }
 }

@@ -3,7 +3,6 @@
 namespace Cornichon\ForumBundle\Repository;
 
 use Cornichon\ForumBundle\Entity\Board;
-use Cornichon\ForumBundle\Entity\BoardStat;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
@@ -15,7 +14,7 @@ class BoardRepository extends EntityRepository
     /**
      * Get a Board entity
      * 
-     * @param  integer  $boardId
+     * @param  integer  $id
      * @param  boolean  $deleted = false
      * 
      * @return Board|null
@@ -23,8 +22,7 @@ class BoardRepository extends EntityRepository
     public function find($id, $deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
-                             ->select(array('b', 's'))
-                             ->join('b.stat', 's')
+                             ->select(array('b'))
                              ->where('b.id = :id')->setParameter('id', $id);
 
         if ($deleted !== null) {
@@ -51,8 +49,7 @@ class BoardRepository extends EntityRepository
     public function getBoards($deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
-                             ->select(array('b', 's'))
-                             ->join('b.stat', 's');
+                             ->select(array('b'));
 
         if ($deleted !== null) {
             $queryBuilder->andWhere('b.isDeleted = :isDeleted')
@@ -74,9 +71,8 @@ class BoardRepository extends EntityRepository
     public function getMainBoards($deleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('b')
-                             ->select(array('b', 's'))
-                             ->where('b.parent IS NULL')
-                             ->join('b.stat', 's');
+                             ->select(array('b'))
+                             ->where('b.parent IS NULL');
 
         if ($deleted !== null) {
             $queryBuilder->andWhere('b.isDeleted = :isDeleted')
@@ -98,9 +94,8 @@ class BoardRepository extends EntityRepository
     public function getBoardsByParentBoard(Board $board)
     {
         $queryBuilder = $this->createQueryBuilder('b')
-                      ->select(array('b', 's'))
-                      ->where('b.parent = :parent')->setParameter('parent', $board->getId())
-                      ->join('b.stat', 's');
+                      ->select(array('b'))
+                      ->where('b.parent = :parent')->setParameter('parent', $board->getId());
 
         $query = $queryBuilder->getQuery();
 
@@ -122,9 +117,8 @@ class BoardRepository extends EntityRepository
         }
 
         $queryBuilder = $this->createQueryBuilder('b')
-                      ->select(array('b', 's'));
-        $queryBuilder->where($queryBuilder->expr()->in('b.parent', $boardIds))
-                      ->join('b.stat', 's');
+                      ->select(array('b'));
+        $queryBuilder->where($queryBuilder->expr()->in('b.parent', $boardIds));
 
         $query = $queryBuilder->getQuery();
 
@@ -139,9 +133,13 @@ class BoardRepository extends EntityRepository
      */
     public function getBoardIdsRaw($deleted = false)
     {
-        $connection = $this->getEntityManager()->getConnection();
+        $queryBuilder = $this->createQueryBuilder('b')
+                      ->select('b.id, p.id as parent_id')
+                      ->join('b.parent', 'p');
 
-        return $connection->fetchAll("SELECT id, parent_id FROM board");
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
     }
 
     /**
@@ -155,8 +153,7 @@ class BoardRepository extends EntityRepository
     public function getLatestBoards($offset, $limit)
     {
         $query = $this->createQueryBuilder('b')
-                      ->select(array('b', 's'))
-                      ->join('b.stat', 's')
+                      ->select(array('b'))
                       ->orderBy('b.id', 'DESC')
                       ->getQuery()
                       ->setFirstResult($offset)
@@ -176,10 +173,9 @@ class BoardRepository extends EntityRepository
     public function getPopularBoards($offset, $limit)
     {
         $query = $this->createQueryBuilder('b')
-                      ->select(array('b', 's'))
-                      ->join('b.stat', 's')
+                      ->select(array('b'))
                       ->where('b.parent IS NULL')
-                      ->orderBy('s.posts', 'DESC')
+                      ->orderBy('b.totalPosts', 'DESC')
                       ->getQuery()
                       ->setFirstResult($offset)
                       ->setMaxResults($limit);

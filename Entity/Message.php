@@ -21,6 +21,13 @@ class Message
     protected $id;
 
     /**
+     * @var integer $position
+     *
+     * @ORM\Column(name="position", type="integer")
+     */
+    protected $position;
+
+    /**
      * @var string $body
      *
      * @ORM\Column(name="body", type="text")
@@ -49,6 +56,13 @@ class Message
     protected $isDeleted = false;
 
     /**
+     * @var boolean $isTopicBody
+     *
+     * @ORM\Column(name="is_topic_body", type="boolean")
+     */
+    protected $isTopicBody = false;
+
+    /**
      * @var User $user
      */
     protected $user;
@@ -66,6 +80,30 @@ class Message
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set position
+     *
+     * @param integer $position
+     * 
+     * @return Message
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    
+        return $this;
+    }
+
+    /**
+     * Get body
+     *
+     * @return string 
+     */
+    public function getPosition()
+    {
+        return $this->position;
     }
 
     /**
@@ -158,6 +196,30 @@ class Message
     public function isDeleted()
     {
         return $this->isDeleted;
+    }
+
+    /**
+     * Set isTopicBody
+     *
+     * @param  boolean $isTopicBody
+     * 
+     * @return Message
+     */
+    public function setIsTopicBody($isTopicBody)
+    {
+        $this->isTopicBody = $isTopicBody;
+    
+        return $this;
+    }
+
+    /**
+     * Get isTopicBody
+     *
+     * @return boolean 
+     */
+    public function isTopicBody()
+    {
+        return $this->isTopicBody;
     }
 
     /**

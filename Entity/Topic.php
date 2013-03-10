@@ -50,6 +50,13 @@ class Topic
     protected $dateModified;
 
     /**
+     * @var \DateTime $lastMessageDate
+     * 
+     * @ORM\Column(name="last_message_date", type="datetime", nullable=true)
+     */
+    protected $lastMessageDate;
+
+    /**
      * @var boolean $isDeleted
      *
      * @ORM\Column(name="is_deleted", type="boolean")
@@ -71,6 +78,20 @@ class Topic
     protected $isPinned = false;
 
     /**
+     * @var integer $totalViews
+     *
+     * @ORM\Column(name="total_views", type="integer")
+     */
+    protected $totalViews = 0;
+
+    /**
+     * @var integer $totalPosts
+     *
+     * @ORM\Column(name="total_posts", type="integer")
+     */
+    protected $totalPosts = 0;
+
+    /**
      * @var User $user
      */
     protected $user;
@@ -89,6 +110,11 @@ class Topic
      * @var ArrayCollection
      */
     protected $messages;
+
+    /**
+     * @var User $user
+     */
+    protected $lastUser;
 
     public function __construct()
     {
@@ -212,6 +238,133 @@ class Topic
     }
 
     /**
+     * Set lastMessageDate
+     *
+     * @param \DateTime $lastMessageDate
+     * @return TopicStat
+     */
+    public function setLastMessageDate($lastMessageDate)
+    {
+        $this->lastMessageDate = $lastMessageDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get lastMessageDate
+     *
+     * @return \DateTime 
+     */
+    public function getLastMessageDate()
+    {
+        return $this->lastMessageDate;
+    }
+
+    /**
+     * Set total views
+     *
+     * @param integer $totalViews
+     * 
+     * @return Topic
+     */
+    public function setTotalViews($totalViews)
+    {
+        $this->totalViews = $totalViews;
+    
+        return $this;
+    }
+
+    /**
+     * Get total views
+     *
+     * @return integer 
+     */
+    public function getTotalViews()
+    {
+        return $this->totalViews;
+    }
+
+    /**
+     * Increase the total of views in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Topic
+     */
+    public function increaseTotalViews($int = 1)
+    {
+        $this->totalViews += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of views in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Topic
+     */
+    public function decreaseTotalViews($int = 1)
+    {
+        $this->totalViews -= $int;
+
+        return $this;
+    }
+
+    /**
+     * Set total posts
+     *
+     * @param integer $totalPosts
+     * 
+     * @return TopicStat
+     */
+    public function setTotalPosts($int)
+    {
+        $this->totalPosts = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get total posts
+     *
+     * @return integer 
+     */
+    public function getTotalPosts()
+    {
+        return $this->totalPosts;
+    }
+
+    /**
+     * Increase the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Topic
+     */
+    public function increaseTotalPosts($int = 1)
+    {
+        $this->totalPosts += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of posts in the topic
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Topic
+     */
+    public function decreaseTotalPosts($int = 1)
+    {
+        $this->totalPosts -= $int;
+
+        return $this;
+    }
+
+    /**
      * Set isDeleted
      *
      * @param boolean $isDeleted
@@ -304,29 +457,6 @@ class Topic
     }
 
     /**
-     * Set stat
-     *
-     * @param \Cornichon\ForumBundle\Entity\TopicStat $stat
-     * @return Topic
-     */
-    public function setStat(\Cornichon\ForumBundle\Entity\TopicStat $stat)
-    {
-        $this->stat = $stat;
-
-        return $this;
-    }
-
-    /**
-     * Get stat
-     *
-     * @return \Cornichon\ForumBundle\Entity\TopicStat
-     */
-    public function getStat()
-    {
-        return $this->stat;
-    }
-
-    /**
      * Set board
      *
      * @param \Cornichon\ForumBundle\Entity\Board $board
@@ -369,5 +499,80 @@ class Topic
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * Set user
+     *
+     * @param UserInterface $user
+     * @return TopicStat
+     */
+    public function setLastUser(\Symfony\Component\Security\Core\User\UserInterface $user)
+    {
+        $this->lastUser = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return UserInterface
+     */
+    public function getLastUser()
+    {
+        return $this->lastUser;
+    }
+
+    /**
+     * Convenient methods
+     */
+
+    /**
+     * Get a short value of the number of posts
+     *
+     * @return string
+     */
+    public function getShortTotalPosts()
+    {
+        return $this->convertFormat($this->totalPosts);
+    }
+
+    /**
+     * Get a short value of the number of views
+     *
+     * @return string
+     */
+    public function getShortTotalViews()
+    {
+        return $this->convertFormat($this->totalViews);
+    }
+
+    /**
+     * Convert an integer into a short string
+     *
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @param  integer  $var
+     * @return integer
+     */
+    protected function convertFormat($var)
+    {   
+        if ($var < 1000) {
+            return $var;
+        }
+        else if ($var < 10000) {
+            return round($var / 1000, 1) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000000) . "M";
+        }
     }
 }

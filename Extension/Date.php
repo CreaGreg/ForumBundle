@@ -28,11 +28,12 @@ class Date extends \Twig_Extension {
      *
      * @param DateTime $date
      * @param integer  $maxDigit = 2    The number of digits
+     * @param integer  $limit = 259200  Anything older than the limit will show a date instead
      * @param string   $glue = ", "     The separator
      *
      * @return string
      */
-    public function timeSince(\DateTime $date, $maxDigit = 2, $glue = ", ")
+    public function timeSince(\DateTime $date, $maxDigit = 2, $limit = 259200, $glue = ", ")
     {
         $i = 0;
         $array = array();

@@ -4,7 +4,6 @@ namespace Cornichon\ForumBundle\Service;
 
 use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
-use Cornichon\ForumBundle\Entity\TopicStat;
 use Cornichon\ForumBundle\Entity\Message;
 
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -101,6 +100,23 @@ class TopicService extends BaseService
     }
 
     /**
+     * Get the latest topics by user
+     * 
+     * @param  UserInterface    $user
+     * @param  integer          $offset
+     * @param  integer          $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
+    public function getLatestTopicsByUser(UserInterface $user, $offset, $limit)
+    {
+        return $this->em
+                    ->getRepository($this->topicRepositoryClass)
+                    ->getLatestTopicsByUser($user, $offset, $limit);
+    }
+
+
+    /**
      * Get all topics
      * Do not use if you don't know what you are doing
      * 
@@ -157,14 +173,8 @@ class TopicService extends BaseService
         }
 
         // If the topic doesn't have stat
-        if ($topic->getStat() === null) {
-            $topicStat = $this->createTopicStat();
-            $topicStat->setTopic($topic);
-            $topicStat->setLastUser($topic->getUser());
-
-            $this->em->persist($topicStat);
-
-            $topic->setStat($topicStat);
+        if ($topic->getLastUser() === null) {
+            $topic->setLastUser($topic->getUser());
         }
 
         // If the topic is new
@@ -177,8 +187,7 @@ class TopicService extends BaseService
                              ->getByUserOrCreateOne($topic->getUser(), false);
 
             $userStat->increaseTotalTopic();
-
-            $this->em->persist($userStat);
+            $userStat->increaseTotalMessage();
         }
         else {
             $topic->getDateModified(new \DateTime());
@@ -188,5 +197,67 @@ class TopicService extends BaseService
         $this->em->flush($topic);
 
         return $topic;
+    }
+
+    /**
+     * Delete a topic
+     * 
+     * @param  Topic    $topic
+     * @param  boolean  $bubbleDown = false    if it should delete a related object
+     * 
+     * @return Topic
+     */
+    public function delete(Topic $topic, $bubbleDown = false)
+    {
+        $topic->setIsDeleted(!$topic->isDeleted());
+
+        if ($bubbleDown === true) {
+            $message = $this->container
+                            ->get('cornichon.forum.message')
+                            ->getTopicBodyByTopic($topic);
+
+            if ($message !== null) {
+                $this->container
+                     ->get('cornichon.forum.message')
+                     ->delete($message, false);
+            }
+        }
+
+        $this->em->persist($topic);
+        $this->em->flush();
+
+        return $topic;
+    }
+
+    /**
+     * Add a given number to the views count of a given topic
+     * 
+     * @param  Topic   $topic
+     * @param  integer $increment = 1
+     * 
+     * @return TopicService
+     */
+    public function incrementTotalViews(Topic $topic, $increment = 1)
+    {
+        $topic->increaseTotalPosts($increment);
+
+        $this->save($topic);
+    }
+
+    /**
+     * Add a given number to the posts count of a given topic
+     * 
+     * @param  Topic   $topic
+     * @param  integer $increment = 1
+     * 
+     * @return TopicService
+     */
+    public function incrementTotalPosts(Topic $topic, $increment = 1)
+    {
+        $topic->increaseTotalPosts($increment);
+
+        $this->save($topic);
+
+        return $this;
     }
 }

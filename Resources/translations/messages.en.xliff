@@ -154,6 +154,26 @@
                 <source>Unlock</source>
                 <target>Unlock</target>
             </trans-unit>
+            <trans-unit id="39">
+                <source>Permissions</source>
+                <target>Permissions</target>
+            </trans-unit>
+            <trans-unit id="40">
+                <source>Top.forum.users</source>
+                <target>Top forum users</target>
+            </trans-unit>
+            <trans-unit id="41">
+                <source>Expand</source>
+                <target>Expand</target>
+            </trans-unit>
+            <trans-unit id="42">
+                <source>Latest.created.topics</source>
+                <target>Latest created topics</target>
+            </trans-unit>
+            <trans-unit id="43">
+                <source>List.of.boards</source>
+                <target>List of boards</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

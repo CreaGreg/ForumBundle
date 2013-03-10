@@ -24,18 +24,24 @@ class MainService extends BaseService
     {
         $parameters = array();
         $board = null;
+        $topic = null;
         if ($entity instanceof Board) {
             $board = $entity;
         }
         if ($entity instanceof Topic) {
             $board = $entity->getBoard();
-            $parameters['topicSlug'] = $entity->getSlug();
-            $parameters['topicId'] = $entity->getId();
+            $topic = $entity;
         }
         if ($entity instanceof Message) {
             $board = $entity->getTopic()->getBoard();
+            $topic = $entity->getTopic();
+            $parameters['messageId'] = $entity->getId();
         }
 
+        if ($topic instanceof Topic) {
+            $parameters['topicSlug'] = $topic->getSlug();
+            $parameters['topicId'] = $topic->getId();
+        }
         if ($board instanceof Board) {
             $boardSlug = $this->container->get('cornichon.forum.board')->buildSlug($board);
 

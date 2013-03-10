@@ -20,13 +20,19 @@ class DataAccess extends \Twig_Extension {
     public function getFunctions() 
     {
         return array(
-            "get_boards" => new \Twig_Function_Method($this, 'getBoards')
+            "get_boards" => new \Twig_Function_Method($this, 'getBoards'),
+            "get_top_forum_users" => new \Twig_Function_Method($this, 'getTopUsers')
         );
     }
 
-    public function getBoards()
+    public function getBoards($deleted = false, $parentFirst = false)
     {
-        return $this->container->get('cornichon.forum.board')->getBoards();
+        return $this->container->get('cornichon.forum.board')->getBoards($deleted, $parentFirst);
+    }
+
+    public function getTopUsers($limit = 10)
+    {
+        return $this->container->get('cornichon.forum.user_stat')->getTopUsers($limit);
     }
 
     public function getName() 

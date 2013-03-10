@@ -5,16 +5,12 @@ namespace Cornichon\ForumBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Cornichon\ForumBundle\Entity\Moderation
+ * Flag
  *
  * @ORM\MappedSuperclass
  */
-class Moderation
+class Flag
 {
-    const ACTION_ID_LOCK = 1;
-    const ACTION_ID_PIN = 2;
-    const ACTION_ID_DELETE = 3;
-
     /**
      * @var integer $id
      *
@@ -32,28 +28,9 @@ class Moderation
     protected $dateCreated;
 
     /**
-     * @var \DateTime $dateModified
-     *
-     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
+     * @var ArrayCollection $users
      */
-    protected $dateModified;
-
-    /**
-     * @var bool $isValid
-     *
-     * @ORM\Column(name="is_valid", type="boolean", nullable=true)
-     */
-    protected $isValid;
-
-    /**
-     * @var User $user
-     */
-    protected $user;
-
-    /**
-     * @var User $moderator
-     */
-    protected $moderator;
+    protected $users;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
@@ -64,6 +41,7 @@ class Moderation
      * @var \Cornichon\ForumBundle\Entity\Message $message
      */
     protected $message;
+
 
     /**
      * Get id
@@ -76,33 +54,10 @@ class Moderation
     }
 
     /**
-     * Set isValid
-     *
-     * @param boolean $isValid
-     * @return Moderation
-     */
-    public function setIsValid($isValid = null)
-    {
-        $this->isValid = $isValid;
-    
-        return $this;
-    }
-
-    /**
-     * Get isValid
-     *
-     * @return boolean 
-     */
-    public function isValid()
-    {
-        return $this->isValid;
-    }
-
-    /**
      * Set dateCreated
      *
      * @param \DateTime $dateCreated
-     * @return Moderation
+     * @return Flag
      */
     public function setDateCreated($dateCreated)
     {
@@ -122,79 +77,48 @@ class Moderation
     }
 
     /**
-     * Set dateModified
-     *
-     * @param \DateTime $dateModified
-     * @return Moderation
-     */
-    public function setDateModified($dateModified)
-    {
-        $this->dateModified = $dateModified;
-    
-        return $this;
-    }
-
-    /**
-     * Get dateModified
-     *
-     * @return \DateTime 
-     */
-    public function getDateModified()
-    {
-        return $this->dateModified;
-    }
-
-    /**
      * Set user
      *
      * @param UserInterface $user
      * @return Moderation
      */
-    public function setUser(\Symfony\Component\Security\Core\User\UserInterface $user)
+    public function addUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
-        $this->user = $user;
+        $this->users[] = $user;
 
         return $this;
     }
 
     /**
-     * Get user
-     *
-     * @return UserInterface
+     * Remove a user entity from the collection
+     * 
+     * @param  \Symfony\Component\Security\Core\User\UserInterface      $user
+     * 
+     * @return ArrayCollection
      */
-    public function getUser()
+    public function removeUser(\Symfony\Component\Security\Core\User\UserInterface $user)
     {
-        return $this->user;
+        $this->users->removeElement($user);
+
+        return $this->users;
     }
 
     /**
-     * Set moderator
+     * Get a list of users
      *
-     * @param UserInterface $moderator
-     * @return Moderation
+     * @return ArrayCollection
      */
-    public function setModerator(\Symfony\Component\Security\Core\User\UserInterface $moderator)
+    public function getUsers()
     {
-        $this->moderator = $moderator;
-
-        return $this;
-    }
-
-    /**
-     * Get moderator
-     *
-     * @return UserInterface
-     */
-    public function getModerator()
-    {
-        return $this->moderator;
+        return $this->users;
     }
 
     /**
      * Set message
      *
      * @param \Cornichon\ForumBundle\Entity\Message $message
-     * @return Moderation
+     * 
+     * @return Flag
      */
     public function setMessage(\Cornichon\ForumBundle\Entity\Message $message)
     {
@@ -217,7 +141,8 @@ class Moderation
      * Set topic
      *
      * @param \Cornichon\ForumBundle\Entity\Topic $topic
-     * @return Moderation
+     * 
+     * @return Flag
      */
     public function setTopic(\Cornichon\ForumBundle\Entity\Topic $topic)
     {
@@ -235,5 +160,4 @@ class Moderation
     {
         return $this->topic;
     }
-
 }

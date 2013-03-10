@@ -146,7 +146,7 @@ class UserStat
      * 
      * @return  UserStat
      */
-    public function decreateTotalTopic($int = 1)
+    public function decreaseTotalTopic($int = 1)
     {
         $this->totalTopic -= $int;
 

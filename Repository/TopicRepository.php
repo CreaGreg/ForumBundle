@@ -4,8 +4,9 @@ namespace Cornichon\ForumBundle\Repository;
 
 use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
-use Cornichon\ForumBundle\Entity\TopicStat;
 use Cornichon\ForumBundle\Entity\Message;
+
+use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -24,10 +25,9 @@ class TopicRepository extends EntityRepository
     public function getInBoard(Board $board)
     {
         $query = $this->createQueryBuilder('t')
-                      ->select(array('t', 'u', 's', 'l'))
+                      ->select(array('t', 'u', 'l'))
                       ->join('t.user', 'u')
-                      ->join('t.stat', 's')
-                      ->join('s.lastUser', 'l')
+                      ->join('t.lastUser', 'l')
                       ->where('t.board = :board')->setParameter('board', $board)
                       ->getQuery();
 
@@ -45,10 +45,7 @@ class TopicRepository extends EntityRepository
     public function getLatestTopics($offset, $limit)
     {
         $query = $this->createQueryBuilder('t')
-                      ->select(array('t', 'u', 's', 'l'))
-                      ->join('t.user', 'u')
-                      ->join('t.stat', 's')
-                      ->join('s.lastUser', 'l')
+                      ->select(array('t'))
                       ->orderBy('t.dateCreated', 'DESC')
                       ->getQuery()
                       ->setFirstResult($offset)
@@ -69,10 +66,7 @@ class TopicRepository extends EntityRepository
     public function getLatestTopicsByBoardIds($boardIds, $offset, $limit)
     {
         $queryBuilder = $this->createQueryBuilder('t')
-                      ->select(array('t', 'u', 's', 'l'))
-                      ->join('t.user', 'u')
-                      ->join('t.stat', 's')
-                      ->join('s.lastUser', 'l')
+                      ->select(array('t'))
                       ->orderBy('t.dateCreated', 'DESC');
 
         $queryBuilder->where($queryBuilder->expr()->in('t.board', $boardIds));
@@ -96,11 +90,30 @@ class TopicRepository extends EntityRepository
     public function getLatestTopicsByBoard(Board $board, $offset, $limit)
     {
         $query = $this->createQueryBuilder('t')
-                      ->select(array('t', 'u', 's', 'l'))
-                      ->join('t.user', 'u')
-                      ->join('t.stat', 's')
-                      ->join('s.lastUser', 'l')
+                      ->select(array('t'))
                       ->where('t.board = :board')->setParameter('board', $board)
+                      ->orderBy('t.dateCreated', 'DESC')
+                      ->getQuery()
+                      ->setFirstResult($offset)
+                      ->setMaxResults($limit);
+
+        return new Paginator($query, false);
+    }
+
+    /**
+     * Get the latest topics by user
+     * 
+     * @param  UserInterface    $user
+     * @param  integer          $offset
+     * @param  integer          $limit
+     * 
+     * @return \Doctrine\ORM\Tools\Pagination\Paginator
+     */
+    public function getLatestTopicsByUser(UserInterface $user, $offset, $limit)
+    {
+        $query = $this->createQueryBuilder('t')
+                      ->select(array('t'))
+                      ->where('t.user = :user')->setParameter('user', $user)
                       ->orderBy('t.dateCreated', 'DESC')
                       ->getQuery()
                       ->setFirstResult($offset)

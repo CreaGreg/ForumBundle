@@ -3,7 +3,6 @@
 namespace Cornichon\ForumBundle\Service;
 
 use Cornichon\ForumBundle\Entity\Board;
-use Cornichon\ForumBundle\Entity\BoardStat;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
@@ -80,10 +79,11 @@ class BoardService extends BaseService
      * Gets all boards and build up the full hierarchie
      * 
      * @param  boolean  $deleted = false
+     * @param  boolean  $parentFirst = false    defines whether the list will be ordered by parent first then childless board (null will bypass that)
      * 
      * @return ArrayCollection
      */
-    public function getBoards($deleted = false)
+    public function getBoards($deleted = false, $parentFirst = false)
     {
         /**
          * Get all the board id and their parent ids
@@ -113,6 +113,7 @@ class BoardService extends BaseService
         $boards = $this->em
                         ->getRepository($this->boardRepositoryClass)
                         ->getBoards($deleted);
+
         /**
          * Reorganize and make it a map
          */
@@ -122,6 +123,12 @@ class BoardService extends BaseService
         }
 
         $this->processLayer($map, $mainBoards, $allBoards);
+
+        if ($parentFirst !== null) {
+            foreach ($mainBoards as $board) {
+                $this->processOrderByChildless($board, $parentFirst);
+            }
+        }
 
         return $mainBoards;
     }
@@ -171,9 +178,7 @@ class BoardService extends BaseService
                     $tmpColl->add($allBoards[$boardId]);
                 }
 
-                $board->setChildren(
-                    $this->processLayer($map, $tmpColl, $allBoards)
-                );
+                $board->setChildren($this->processLayer($map, $tmpColl, $allBoards));
             }
             else {
                 $board->setChildren(new ArrayCollection());
@@ -183,6 +188,45 @@ class BoardService extends BaseService
 
         }
         return $coll;
+    }
+
+    /**
+     * Reorder a board children (and recursively) by parent first or not
+     * 
+     * @param  Board    $board
+     * @param  boolean  $parentFirst
+     * 
+     * @return Board
+     */
+    private function processOrderByChildless(Board $board, $parentFirst)
+    {
+        $childless = array();
+        $parent = array();
+        $children = array();
+
+        // If the board has children then it's a parent and we process its children
+        foreach ($board->getChildren() as $b) {
+            if ($b->getChildren()->count() !== 0) {
+                $b = $this->processOrderByChildless($b, $parentFirst);
+
+                $parent[] = $b;
+            }
+            else {
+                $childless[] = $b;
+            }
+        }
+
+        // Apply order
+        if ($parentFirst === true) {
+            $children = array_merge($parent, $childless);
+        }
+        else {
+            $children = array_merge($childless, $parent);
+        }
+
+        $board->setChildren(new ArrayCollection($children));
+
+        return $board;
     }
 
     /**
@@ -282,14 +326,6 @@ class BoardService extends BaseService
         }
 
         $this->em->persist($board);
-
-        if ($board->getStat() === null) {
-            $boardStat = $this->createBoardStat();
-            $boardStat->setBoard($board);
-            $this->em->persist($boardStat);
-
-            $board->setStat($boardStat);
-        }
         
         $this->em->flush();
 
@@ -338,18 +374,20 @@ class BoardService extends BaseService
      * 
      * @param  Board   $board
      * @param  integer $increment = 1
+     * 
+     * @return BoardService
      */
     public function incrementStatTopics(Board $board, $increment = 1)
     {
-        $board->getStat()->setTopics(
-            $board->getStat()->getTopics() + $increment
-        );
+        $board->increaseTotalTopics($increment);
 
-        $this->em->persist($board);
+        $this->save($board);
 
         if ($board->getParent() !== null) {
             $this->incrementStatTopics($board->getParent());
         }
+
+        return $this;
     }
 
     /**
@@ -358,18 +396,20 @@ class BoardService extends BaseService
      * 
      * @param  Board   $board    
      * @param  integer $increment = 1
+     * 
+     * @return  BoardService
      */
     public function incrementStatPosts(Board $board, $increment = 1) 
     {
-        $board->getStat()->setPosts(
-            $board->getStat()->getPosts() + $increment
-        );
+        $board->increaseTotalPosts($increment);
 
-        $this->em->persist($board);
+        $this->save($board);
 
         if ($board->getParent() !== null) {
             $this->incrementStatPosts($board->getParent());
         }
+
+        return $this;
     }
 
     public function moveBoard(Board $original, Board $destination)
@@ -391,8 +431,8 @@ class BoardService extends BaseService
             throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
         }
 
-        $posts = $original->getStat()->getPosts();
-        $topics = $original->getStat()->getTopics();
+        $posts = $original->getTotalPosts();
+        $topics = $original->getTotalTopics();
 
         // Make sure the destination is not the children of the source
         $board = $destination->getParent();
@@ -442,13 +482,11 @@ class BoardService extends BaseService
             return false;
         }
         else {
-            $source->getStat()->setPosts(
-                $source->getStat()->getPosts() - $posts
-            );
-            $source->getStat()->setTopics(
-                $source->getStat()->getTopics() - $topics
-            );
-            $this->em->persist($source->getStat());
+            $source->decreaseTotalPosts($posts);
+
+            $source->decreaseTotalTopics($topics);
+
+            $this->save($source);
         }
 
         if ($source->getParent() !== null) {
@@ -471,14 +509,11 @@ class BoardService extends BaseService
      */
     private function recurciveMoveAddition($board, $posts, $topics)
     {
-        $board->getStat()->setPosts(
-            $board->getStat()->getPosts() + $posts
-        );
-        $board->getStat()->setTopics(
-            $board->getStat()->getTopics() + $topics
-        );
-        
-        $this->em->persist($board->getStat());
+        $board->increaseTotalPosts($posts);
+
+        $board->increaseTotalTopics($topics);
+
+        $this->save($board);
 
         if ($board->getParent() !== null) {
             return $this->recurciveMoveAddition($board->getParent(), $posts, $topics);
