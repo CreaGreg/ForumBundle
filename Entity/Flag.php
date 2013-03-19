@@ -3,6 +3,7 @@
 namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Flag
@@ -28,6 +29,13 @@ class Flag
     protected $dateCreated;
 
     /**
+     * @var integer $totalFlagged
+     *
+     * @ORM\Column(name="total_flagged", type="integer")
+     */
+    protected $totalFlagged = 0;
+
+    /**
      * @var ArrayCollection $users
      */
     protected $users;
@@ -42,6 +50,15 @@ class Flag
      */
     protected $message;
 
+    /**
+     * @var \Cornichon\ForumBundle\Entity\Moderation $moderation
+     */
+    protected $moderation;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -74,6 +91,30 @@ class Flag
     public function getDateCreated()
     {
         return $this->dateCreated;
+    }
+
+    /**
+     * Set totalFlagged
+     *
+     * @param integer $int
+     * 
+     * @return Flag
+     */
+    public function setTotalFlagged($int)
+    {
+        $this->totalFlagged = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get totalFlagged
+     *
+     * @return integer 
+     */
+    public function getTotalFlagged()
+    {
+        return $this->totalFlagged;
     }
 
     /**
@@ -159,5 +200,54 @@ class Flag
     public function getTopic()
     {
         return $this->topic;
+    }
+
+    /**
+     * Set moderation
+     *
+     * @param \Cornichon\ForumBundle\Entity\Moderation $moderation
+     * 
+     * @return Flag
+     */
+    public function setModeration(\Cornichon\ForumBundle\Entity\Moderation $moderation)
+    {
+        $this->moderation = $moderation;
+
+        return $this;
+    }
+
+    /**
+     * Get moderation
+     *
+     * @return \Cornichon\ForumBundle\Entity\Moderation
+     */
+    public function getModeration()
+    {
+        return $this->moderation;
+    }
+
+    /**
+     * Returns the entity associated to this flag
+     * 
+     * @return Message|Topic
+     */
+    public function getFlaggedItem()
+    {
+        if ($this->getMessage() !== null) {
+            return $this->getMessage();
+        }
+        else if ($this->getTopic() !== null) {
+            return $this->getTopic();
+        }
+    }
+
+    /**
+     * Returns the name of the moderated item
+     * 
+     * @return string
+     */
+    public function getFlaggedItemName()
+    {
+        return $this->getFlaggedItem()->getClassName();
     }
 }

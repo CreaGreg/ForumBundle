@@ -527,6 +527,16 @@ class Topic
     /**
      * Convenient methods
      */
+    
+    /**
+     * Get this class' name
+     * 
+     * @return string
+     */
+    public function getClassName()
+    {
+        return 'topic';
+    }
 
     /**
      * Get a short value of the number of posts

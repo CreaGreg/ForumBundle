@@ -174,6 +174,58 @@
                 <source>List.of.boards</source>
                 <target>List of boards</target>
             </trans-unit>
+            <trans-unit id="44">
+                <source>Latest.moderation</source>
+                <target>Latest moderation</target>
+            </trans-unit>
+            <trans-unit id="45">
+                <source>pinned</source>
+                <target>pinned</target>
+            </trans-unit>
+            <trans-unit id="46">
+                <source>unpinned</source>
+                <target>unpinned</target>
+            </trans-unit>
+            <trans-unit id="47">
+                <source>locked</source>
+                <target>locked</target>
+            </trans-unit>
+            <trans-unit id="48">
+                <source>unlocked</source>
+                <target>unlocked</target>
+            </trans-unit>
+            <trans-unit id="49">
+                <source>deleted</source>
+                <target>deleted</target>
+            </trans-unit>
+            <trans-unit id="50">
+                <source>undeleted</source>
+                <target>undeleted</target>
+            </trans-unit>
+            <trans-unit id="51">
+                <source>a.message</source>
+                <target>a message</target>
+            </trans-unit>
+            <trans-unit id="52">
+                <source>a.topic</source>
+                <target>a topic</target>
+            </trans-unit>
+            <trans-unit id="53">
+                <source>a.board</source>
+                <target>a board</target>
+            </trans-unit>
+            <trans-unit id="54">
+                <source>Latest.flags.risen</source>
+                <target>Latest flags risen</target>
+            </trans-unit>
+            <trans-unit id="55">
+                <source>flagged</source>
+                <target>flagged</target>
+            </trans-unit>
+            <trans-unit id="56">
+                <source>flagged</source>
+                <target>flagged</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

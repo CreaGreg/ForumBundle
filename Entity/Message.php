@@ -267,4 +267,18 @@ class Message
     {
         return $this->topic;
     }
+
+    //
+    // CONVENIENT METHODS
+    //
+
+    /**
+     * Get this class' name
+     * 
+     * @return string
+     */
+    public function getClassName()
+    {
+        return 'message';
+    }
 }

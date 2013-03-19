@@ -162,10 +162,52 @@ class MessageService extends BaseService
                  ->delete($message->getTopic());
         }
 
-        $message->setIsDeleted(!$message->isDeleted());
+        $message->setIsDeleted(true);
 
         $this->em->persist($message);
         $this->em->flush();
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->delete($message, $user);
+
+        return $message;
+    }
+
+    /**
+     * Undelete a message
+     * 
+     * @param  Message  $message
+     * @param  boolean  $bubbleUp  = false     if it should delete a related object as well
+     * 
+     * @return Message
+     */
+    public function undelete(Message $message, $bubbleUp = false)
+    {
+        if ($message->isTopicBody() === true && $bubbleUp === true) {
+            $this->container
+                 ->get('cornichon.forum.topic')
+                 ->undelete($message->getTopic());
+        }
+
+        $message->setIsDeleted(false);
+
+        $this->em->persist($message);
+        $this->em->flush();
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->undelete($message, $user);
 
         return $message;
     }

@@ -11,9 +11,26 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Moderation
 {
-    const ACTION_ID_LOCK = 1;
-    const ACTION_ID_PIN = 2;
-    const ACTION_ID_DELETE = 3;
+    const ACTION_ID_LOCK = 10;
+    const ACTION_ID_UNLOCK = 11;
+
+    const ACTION_ID_PIN = 20;
+    const ACTION_ID_UNPIN = 21;
+
+    const ACTION_ID_DELETE = 30;
+    const ACTION_ID_UNDELETE = 31;
+
+    const ACTION_ID_MOVE = 90;
+
+    protected $actionNames = array(
+        10  => 'locked',
+        11  => 'unlocked',
+        20  => 'pinned',
+        21  => 'unpinned',
+        30  => 'deleted',
+        31  => 'undeleted',
+        90  => 'moved'
+    );
 
     /**
      * @var integer $id
@@ -32,28 +49,21 @@ class Moderation
     protected $dateCreated;
 
     /**
-     * @var \DateTime $dateModified
+     * @var integer $actionId
      *
-     * @ORM\Column(name="date_modified", type="datetime", nullable=true)
+     * @ORM\Column(name="action_id", type="integer")
      */
-    protected $dateModified;
+    protected $actionId;
 
     /**
-     * @var bool $isValid
-     *
-     * @ORM\Column(name="is_valid", type="boolean", nullable=true)
-     */
-    protected $isValid;
-
-    /**
-     * @var User $user
+     * @var \Symfony\Component\Security\Core\User\UserInterface $user
      */
     protected $user;
 
     /**
-     * @var User $moderator
+     * @var \Cornichon\ForumBundle\Entity\Board $board
      */
-    protected $moderator;
+    protected $board;
 
     /**
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
@@ -66,6 +76,11 @@ class Moderation
     protected $message;
 
     /**
+     * @var \Cornichon\ForumBundle\Entity\Flag $flag
+     */
+    protected $flag;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -73,29 +88,6 @@ class Moderation
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set isValid
-     *
-     * @param boolean $isValid
-     * @return Moderation
-     */
-    public function setIsValid($isValid = null)
-    {
-        $this->isValid = $isValid;
-    
-        return $this;
-    }
-
-    /**
-     * Get isValid
-     *
-     * @return boolean 
-     */
-    public function isValid()
-    {
-        return $this->isValid;
     }
 
     /**
@@ -122,26 +114,27 @@ class Moderation
     }
 
     /**
-     * Set dateModified
+     * Set actionId
      *
-     * @param \DateTime $dateModified
+     * @param  integer  $actionId
+     * 
      * @return Moderation
      */
-    public function setDateModified($dateModified)
+    public function setActionId($actionId)
     {
-        $this->dateModified = $dateModified;
+        $this->actionId = $actionId;
     
         return $this;
     }
 
     /**
-     * Get dateModified
+     * Get actionId
      *
      * @return \DateTime 
      */
-    public function getDateModified()
+    public function getActionId()
     {
-        return $this->dateModified;
+        return $this->actionId;
     }
 
     /**
@@ -234,6 +227,95 @@ class Moderation
     public function getTopic()
     {
         return $this->topic;
+    }
+
+    /**
+     * Set board
+     *
+     * @param \Cornichon\ForumBundle\Entity\Board $board
+     * @return Moderation
+     */
+    public function setBoard(\Cornichon\ForumBundle\Entity\Board $board)
+    {
+        $this->board = $board;
+
+        return $this;
+    }
+
+    /**
+     * Get board
+     *
+     * @return \Cornichon\ForumBundle\Entity\Board
+     */
+    public function getBoard()
+    {
+        return $this->board;
+    }
+
+    /**
+     * Set flag
+     *
+     * @param \Cornichon\ForumBundle\Entity\Flag $flag
+     * @return Moderation
+     */
+    public function setFlag(\Cornichon\ForumBundle\Entity\Flag $flag)
+    {
+        $this->flag = $flag;
+
+        return $this;
+    }
+
+    /**
+     * Get flag
+     *
+     * @return \Cornichon\ForumBundle\Entity\Flag
+     */
+    public function getFlag()
+    {
+        return $this->flag;
+    }
+
+
+    //
+    // CONVINIENT METHODS
+    //
+    
+    /**
+     * Returns the action name related to this moderation
+     * 
+     * @return string
+     */
+    public function getActionName()
+    {
+        return $this->actionNames[$this->getActionId()];
+    }
+
+    /**
+     * Returns the entity associated to this moderation
+     * 
+     * @return Message|Topic|Board
+     */
+    public function getModeratedItem()
+    {
+        if ($this->getMessage() !== null) {
+            return $this->getMessage();
+        }
+        else if ($this->getTopic() !== null) {
+            return $this->getTopic();
+        }
+        else if ($this->getBoard() !== null) {
+            return $this->getBoard();
+        }
+    }
+
+    /**
+     * Returns the name of the moderated item
+     * 
+     * @return string
+     */
+    public function getModeratedItemName()
+    {
+        return $this->getModeratedItem()->getClassName();
     }
 
 }

@@ -209,7 +209,7 @@ class TopicService extends BaseService
      */
     public function delete(Topic $topic, $bubbleDown = false)
     {
-        $topic->setIsDeleted(!$topic->isDeleted());
+        $topic->setIsDeleted(true);
 
         if ($bubbleDown === true) {
             $message = $this->container
@@ -225,6 +225,154 @@ class TopicService extends BaseService
 
         $this->em->persist($topic);
         $this->em->flush();
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->delete($topic, $user);
+
+        return $topic;
+    }
+
+    /**
+     * Undelete a topic
+     * 
+     * @param  Topic    $topic
+     * @param  boolean  $bubbleDown = false    if it should delete a related object
+     * 
+     * @return Topic
+     */
+    public function undelete(Topic $topic, $bubbleDown = false)
+    {
+        $topic->setIsDeleted(false);
+
+        if ($bubbleDown === true) {
+            $message = $this->container
+                            ->get('cornichon.forum.message')
+                            ->getTopicBodyByTopic($topic);
+
+            if ($message !== null) {
+                $this->container
+                     ->get('cornichon.forum.message')
+                     ->undelete($message, false);
+            }
+        }
+
+        $this->em->persist($topic);
+        $this->em->flush();
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->undelete($topic, $user);
+
+        return $topic;
+    }
+
+    /**
+     * Pin a topic
+     * 
+     * @param  Topic    $topic
+     * 
+     * @return Topic
+     */
+    public function pin(Topic $topic)
+    {
+        $topic->setIsPinned(true);
+
+        $this->save($topic);
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->unpin($topic, $user);
+
+        return $topic;
+    }
+
+    /**
+     * Unpin a topic
+     * 
+     * @param  Topic    $topic
+     * 
+     * @return Topic
+     */
+    public function unpin(Topic $topic)
+    {
+        $topic->setIsPinned(false);
+
+        $this->save($topic);
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->unpin($topic, $user);
+
+        return $topic;
+    }
+
+    /**
+     * Lock a topic
+     * 
+     * @param  Topic    $topic
+     * 
+     * @return Topic
+     */
+    public function lock(Topic $topic)
+    {
+        $topic->setIsLocked(true);
+
+        $this->save($topic);
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->lock($topic, $user);
+
+        return $topic;
+    }
+
+    /**
+     * Unlock a topic
+     * 
+     * @param  Topic    $topic
+     * 
+     * @return Topic
+     */
+    public function unlock(Topic $topic)
+    {
+        $topic->setIsLocked(false);
+
+        $this->save($topic);
+
+        $user = $this->container
+                     ->get('security.context')
+                     ->getToken()
+                     ->getUser();
+
+        $this->container
+             ->get('cornichon.forum.moderation')
+             ->unlock($topic, $user);
 
         return $topic;
     }

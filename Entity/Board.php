@@ -534,6 +534,16 @@ class Board
     /**
      * Convenient methods
      */
+    
+    /**
+     * Get this class' name
+     * 
+     * @return string
+     */
+    public function getClassName()
+    {
+        return 'board';
+    }
 
     /**
      * Get a short value of the number of posts

@@ -20,8 +20,10 @@ class DataAccess extends \Twig_Extension {
     public function getFunctions() 
     {
         return array(
-            "get_boards" => new \Twig_Function_Method($this, 'getBoards'),
-            "get_top_forum_users" => new \Twig_Function_Method($this, 'getTopUsers')
+            "get_boards"              => new \Twig_Function_Method($this, 'getBoards'),
+            "get_top_forum_users"     => new \Twig_Function_Method($this, 'getTopUsers'),
+            "get_latest_moderations"  => new \Twig_Function_Method($this, 'getLatestModerations'),
+            "get_latest_flags"        => new \Twig_Function_Method($this, 'getLatestFlags')
         );
     }
 
@@ -33,6 +35,16 @@ class DataAccess extends \Twig_Extension {
     public function getTopUsers($limit = 10)
     {
         return $this->container->get('cornichon.forum.user_stat')->getTopUsers($limit);
+    }
+
+    public function getLatestModerations($limit = 15)
+    {
+        return $this->container->get('cornichon.forum.moderation')->getLatestModerations(0, $limit);
+    }
+
+    public function getLatestFlags($limit = 15)
+    {
+        return $this->container->get('cornichon.forum.flag')->getLatestFlags(0, $limit);
     }
 
     public function getName() 
