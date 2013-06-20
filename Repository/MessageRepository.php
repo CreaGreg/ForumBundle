@@ -5,6 +5,9 @@ namespace Cornichon\ForumBundle\Repository;
 use Cornichon\ForumBundle\Entity\Message;
 use Cornichon\ForumBundle\Entity\Topic;
 
+use Cornichon\ForumBundle\Entity\MessageInterface;
+use Cornichon\ForumBundle\Entity\TopicInterface;
+
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -16,13 +19,13 @@ class MessageRepository extends EntityRepository
      * @param  integer  $id
      * @param  boolean  $deleted
      * 
-     * @return Message
+     * @return MessageInterface
      */
     public function find($id, $isDeleted = false)
     {
         $queryBuilder = $this->createQueryBuilder('m')
-                             ->select(array('m','u'))
-                             ->join('m.user', 'u')
+                             ->select(array('m'))
+                             // ->join('m.user', 'u')
                              ->where('m.id = :id')->setParameter('id', $id);
 
         if ($isDeleted !== null) {
@@ -41,18 +44,18 @@ class MessageRepository extends EntityRepository
     /**
      * Get a collection of messages
      * 
-     * @param  Topic    $topic
-     * @param  integer  $offset
-     * @param  integer  $limit
-     * @param  boolean  $isDeleted
+     * @param  TopicInterface  $topic
+     * @param  integer         $offset
+     * @param  integer         $limit
+     * @param  boolean         $isDeleted
      * 
      * @return Paginator
      */
-    public function getMessagesByTopic(Topic $topic, $offset, $limit, $isDeleted)
+    public function getMessagesByTopic(TopicInterface $topic, $offset, $limit, $isDeleted)
     {
         $queryBuilder = $this->createQueryBuilder('m')
-                             ->select(array('m','u'))
-                             ->join('m.user', 'u')
+                             ->select(array('m'))
+                             // ->join('m.user', 'u')
                              ->where('m.topic = :topic')->setParameter('topic', $topic);
 
         if ($isDeleted !== null) {
@@ -70,15 +73,15 @@ class MessageRepository extends EntityRepository
     /**
      * Get a topic body by topic
      * 
-     * @param  Topic  $topic
+     * @param  TopicInterface  $topic
      * 
      * @return Message|null
      */
-    public function getTopicBodyByTopic(Topic $topic)
+    public function getTopicBodyByTopic(TopicInterface $topic)
     {
         $queryBuilder = $this->createQueryBuilder('m')
-                             ->select(array('m','u'))
-                             ->join('m.user', 'u')
+                             ->select(array('m'))
+                             // ->join('m.user', 'u')
                              ->where('m.topic = :topic')->setParameter('topic', $topic)
                              ->andWhere('m.isTopicBody = 1');
         

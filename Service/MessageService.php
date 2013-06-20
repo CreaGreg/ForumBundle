@@ -6,6 +6,9 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
+use Cornichon\ForumBundle\Entity\TopicInterface;
+use Cornichon\ForumBundle\Entity\MessageInterface;
+
 use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -24,7 +27,7 @@ class MessageService extends BaseService
      * @param  integer   $id
      * @param  boolean   $isDeleted
      * 
-     * @return Message|null
+     * @return MessageInterface|null
      */
     public function find($id, $isDeleted)
     {
@@ -36,14 +39,14 @@ class MessageService extends BaseService
     /**
      * Get a collection of messages by topic
      * 
-     * @param  Topic    $topic
-     * @param  integer  $offset
-     * @param  integer  $limit
-     * @param  boolean  $isDeleted = false
+     * @param  TopicInterface   $topic
+     * @param  integer          $offset
+     * @param  integer          $limit
+     * @param  boolean          $isDeleted = false
      * 
      * @return Paginator
      */
-    public function getMessagesByTopic(Topic $topic, $offset, $limit, $isDeleted = false)
+    public function getMessagesByTopic(TopicInterface $topic, $offset, $limit, $isDeleted = false)
     {
         return $this->em
                     ->getRepository($this->messageRepositoryClass)
@@ -53,11 +56,11 @@ class MessageService extends BaseService
     /**
      * Get a topic body by topic
      * 
-     * @param  Topic  $topic
+     * @param  TopicInterface  $topic
      * 
-     * @return Message|null
+     * @return MessageInterface|null
      */
-    public function getTopicBodyByTopic(Topic $topic)
+    public function getTopicBodyByTopic(TopicInterface $topic)
     {
         return $this->em
                     ->getRepository($this->messageRepositoryClass)
@@ -67,12 +70,12 @@ class MessageService extends BaseService
     /**
      * Flag a message object
      * 
-     * @param  Message       $message
-     * @param  UserInterface $user
+     * @param  MessageInterface   $message
+     * @param  UserInterface      $user
      * 
-     * @return Message
+     * @return MessageInterface
      */
-    public function flag(Message $message, UserInterface $user)
+    public function flag(MessageInterface $message, UserInterface $user)
     {
 
         return $message;
@@ -81,11 +84,11 @@ class MessageService extends BaseService
     /**
      * Save a Message object
      * 
-     * @param  Message   $message
+     * @param  MessageInterface   $message
      * 
-     * @return Message
+     * @return MessageInterface
      */
-    public function save(Message $message)
+    public function save(MessageInterface $message)
     {
         if ($message->getUser() === null) {
             $message->setUser($this->container->get('security.context')->getToken()->getUser());
@@ -149,12 +152,12 @@ class MessageService extends BaseService
     /**
      * Delete a message
      * 
-     * @param  Message  $message
-     * @param  boolean  $bubbleUp  = false     if it should delete a related object as well
+     * @param  MessageInterface  $message
+     * @param  boolean           $bubbleUp  = false     if it should delete a related object as well
      * 
-     * @return Message
+     * @return MessageInterface
      */
-    public function delete(Message $message, $bubbleUp = false)
+    public function delete(MessageInterface $message, $bubbleUp = false)
     {
         if ($message->isTopicBody() === true && $bubbleUp === true) {
             $this->container
@@ -182,12 +185,12 @@ class MessageService extends BaseService
     /**
      * Undelete a message
      * 
-     * @param  Message  $message
-     * @param  boolean  $bubbleUp  = false     if it should delete a related object as well
+     * @param  MessageInterface    $message
+     * @param  boolean             $bubbleUp  = false     if it should delete a related object as well
      * 
-     * @return Message
+     * @return MessageInterface
      */
-    public function undelete(Message $message, $bubbleUp = false)
+    public function undelete(MessageInterface $message, $bubbleUp = false)
     {
         if ($message->isTopicBody() === true && $bubbleUp === true) {
             $this->container

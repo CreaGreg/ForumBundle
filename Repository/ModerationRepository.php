@@ -18,8 +18,9 @@ class ModerationRepository extends EntityRepository
     public function getLatestModerations($offset, $limit)
     {
         $queryBuilder = $this->createQueryBuilder('mo')
-                             ->select(array('mo', 'u', 'm', 't', 'b'))
+                             ->select(array('mo', 'u', 'f', 'm', 't', 'b'))
                              ->join('mo.user', 'u')
+                             ->leftJoin('mo.flag', 'f')
                              ->leftJoin('mo.message', 'm')
                              ->leftJoin('mo.topic', 't')
                              ->leftJoin('mo.board', 'b')

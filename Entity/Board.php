@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  *
  * @ORM\MappedSuperclass
  */
-class Board
+class Board implements BoardInterface
 {
     /**
      * @var integer $id
@@ -69,6 +69,20 @@ class Board
      * @ORM\Column(name="is_deleted", type="boolean")
      */
     protected $isDeleted = false;
+
+    /**
+     * @var integer $position
+     *
+     * @ORM\Column(name="position", type="integer")
+     */
+    protected $position = 1;
+
+    /**
+     * @var integer $depth
+     *
+     * @ORM\Column(name="depth", type="integer")
+     */
+    protected $depth = 1;
 
     /**
      * @var integer $posts
@@ -291,6 +305,54 @@ class Board
     }
 
     /**
+     * Set position
+     *
+     * @param integer $int
+     * 
+     * @return Board
+     */
+    public function setPosition($int)
+    {
+        $this->position = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get position
+     *
+     * @return integer 
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * Set depth
+     *
+     * @param integer $int
+     * 
+     * @return Board
+     */
+    public function setDepth($int)
+    {
+        $this->depth = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get total posts
+     *
+     * @return integer 
+     */
+    public function getDepth()
+    {
+        return $this->depth;
+    }
+
+    /**
      * Set total posts
      *
      * @param integer $int
@@ -456,7 +518,7 @@ class Board
      */
     public function addChild(Board $board)
     {
-        $this->children[] = $board;
+        $this->children->add($board);
 
         return $this;
     }

@@ -6,6 +6,8 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
+use Cornichon\ForumBundle\Entity\BoardInterface;
+
 use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\ORM\EntityRepository;
@@ -18,16 +20,16 @@ class TopicRepository extends EntityRepository
      * Get all topics in board
      * Performance can be poor because it will gather all data
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
-    public function getInBoard(Board $board)
+    public function getInBoard(BoardInterface $board)
     {
         $query = $this->createQueryBuilder('t')
-                      ->select(array('t', 'u', 'l'))
+                      ->select(array('t', 'l'))
                       ->join('t.user', 'u')
-                      ->join('t.lastUser', 'l')
+                      // ->join('t.lastUser', 'l')
                       ->where('t.board = :board')->setParameter('board', $board)
                       ->getQuery();
 
@@ -81,13 +83,13 @@ class TopicRepository extends EntityRepository
     /**
      * Get the latest topics by board
      * 
-     * @param  Board    $board
-     * @param  integer  $offset
-     * @param  integer  $limit
+     * @param  BoardInterface   $board
+     * @param  integer          $offset
+     * @param  integer          $limit
      * 
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
-    public function getLatestTopicsByBoard(Board $board, $offset, $limit)
+    public function getLatestTopicsByBoard(BoardInterface $board, $offset, $limit)
     {
         $query = $this->createQueryBuilder('t')
                       ->select(array('t'))
@@ -125,13 +127,13 @@ class TopicRepository extends EntityRepository
     /**
      * Move all topics from a board to another board
      * 
-     * @param  Board   $from
-     * @param  Board   $to
-     * @param  boolean $flush = true
+     * @param  BoardInterface   $from
+     * @param  BoardInterface   $to
+     * @param  boolean          $flush = true
      * 
      * @return integer 
      */
-    public function moveFromBoardToBoard(Board $from, Board $to)
+    public function moveFromBoardToBoard(BoardInterface $from, BoardInterface $to)
     {
         return $this->createQueryBuilder('t')
                     ->update($this->getEntityName(), 't')

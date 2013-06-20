@@ -6,10 +6,13 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
+use Cornichon\ForumBundle\Entity\BoardInterface;
+
 use Doctrine\Common\Collections\ArrayCollection;
 
 class BoardService extends BaseService
 {
+    protected $boards = null;
 
     protected function createBoardStat()
     {
@@ -22,17 +25,31 @@ class BoardService extends BaseService
     }
 
     /**
-     * Get a Board entity
+     * Get a BoardInterface entity
      * 
      * @param  integer  $boardId
      * 
-     * @return Board|null
+     * @return BoardInterface|null
      */
     public function getById($boardId)
     {
         return $this->em
                     ->getRepository($this->boardRepositoryClass)
                     ->find($boardId);
+    }
+
+    /**
+     * Get a BoardInterface entity
+     * 
+     * @param  slug  $boardSlug
+     * 
+     * @return BoardInterface|null
+     */
+    public function getBySlug($boardSlug)
+    {
+        return $this->em
+                    ->getRepository($this->boardRepositoryClass)
+                    ->findOneBySlug($boardSlug);
     }
 
     /**
@@ -50,11 +67,11 @@ class BoardService extends BaseService
     /**
      * Get a list of boards by parent board
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @return ArrayCollection
      */
-    public function getBoardsByParentBoard(Board $board)
+    public function getBoardsByParentBoard(BoardInterface $board)
     {
         return $this->em
                     ->getRepository($this->boardRepositoryClass)
@@ -85,120 +102,53 @@ class BoardService extends BaseService
      */
     public function getBoards($deleted = false, $parentFirst = false)
     {
-        /**
-         * Get all the board id and their parent ids
-         */
-        $ids = $this->em
-                    ->getRepository($this->boardRepositoryClass)
-                    ->getBoardIdsRaw($deleted);
-
-        /**
-         * Create a map array board_id => parent_id
-         */
-        $map = array();
-        foreach ($ids as $id) {
-            $map[$id['parent_id']][] = $id['id'];
+        if ($this->boards !== null) {
+            return $this->boards;
         }
 
-        /**
-         * Get the main boards to use as a start point
-         */
-        $mainBoards = $this->em
-                    ->getRepository($this->boardRepositoryClass)
-                    ->getMainBoards($deleted);
-
-        /**
-         * Get all the boards
-         */
+        // Get boards ordered by depth and position so the parent of a board always comes first
         $boards = $this->em
-                        ->getRepository($this->boardRepositoryClass)
-                        ->getBoards($deleted);
+                       ->getRepository($this->boardRepositoryClass)
+                       ->getBoardsForTreeBuilding();
 
-        /**
-         * Reorganize and make it a map
-         */
-        $allBoards = array();
-        foreach ($boards as $board) {
-            $allBoards[$board->getId()] = $board;
-        }
+        $map = array();
+        $mainBoards = new ArrayCollection();
 
-        $this->processLayer($map, $mainBoards, $allBoards);
+        foreach ($boards as $row) {
+            $board = $row[0];
+            $parentId = $row[1];
 
-        if ($parentFirst !== null) {
-            foreach ($mainBoards as $board) {
-                $this->processOrderByChildless($board, $parentFirst);
-            }
-        }
+            // Entity is forced partial load so initialize the collection
+            $board->setChildren(new ArrayCollection());
 
-        return $mainBoards;
-    }
+            $map[$board->getId()] = $board;
 
-    /**
-     * Build an array of ids from all children of a board
-     * and recursively get the children of the children
-     * 
-     * @param  Board  $board
-     * 
-     * @return array
-     */
-    public function getChildrenIdsFromBoard(Board $board)
-    {
-        $ids = array();
-
-        foreach ($board->getChildren() as $b) {
-            $ids[] = $b->getId();
-
-            if ($b->getChildren()->count() !== 0) {
-                $ids = array_merge($ids, $this->getChildrenIdsFromBoard($b));
-            }
-        }
-
-        return $ids;
-    }
-
-    /**
-     * Process each layer of the hierarchy
-     * 
-     * @param  array           $map       array(parentId => array(boardId, boardId, ...))
-     * @param  ArrayCollection $boards    collection of boards with the same parent board
-     * @param  array           $allBoards array(boardId => Board)
-     * 
-     * @return ArrayCollection
-     */
-    private function processLayer(array $map, ArrayCollection $boards, array $allBoards)
-    {
-        $coll = new ArrayCollection();
-        foreach ($boards as $board) {
-
-            if (array_key_exists($board->getId(), $map) === true) {
-
-                $tmpColl = new ArrayCollection();
-
-                foreach ($map[$board->getId()] as $boardId) {
-                    $tmpColl->add($allBoards[$boardId]);
-                }
-
-                $board->setChildren($this->processLayer($map, $tmpColl, $allBoards));
+            // If parentId it means the board is at the root of the tree
+            if ($parentId === null) {
+                $mainBoards->add($board);
             }
             else {
-                $board->setChildren(new ArrayCollection());
+                $map[$parentId]->addChild($board);
+                $board->setParent($map[$parentId]);
             }
-
-            $coll->add($board);
-
         }
-        return $coll;
+
+        $this->boards = $mainBoards;
+
+        return $this->boards;
     }
 
     /**
+     * @todo  review the usefulness of this function
+     * 
      * Reorder a board children (and recursively) by parent first or not
      * 
-     * @param  Board    $board
-     * @param  boolean  $parentFirst
+     * @param  BoardInterface    $board
+     * @param  boolean           $parentFirst
      * 
      * @return Board
      */
-    private function processOrderByChildless(Board $board, $parentFirst)
+    private function processOrderByChildless(BoardInterface $board, $parentFirst)
     {
         $childless = array();
         $parent = array();
@@ -274,12 +224,12 @@ class BoardService extends BaseService
      * Delete a board
      * Throws errors if the board is not clean
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @throws \Cornichon\ForumBundle\Exception\TopicExistsException
      * @throws \Cornichon\ForumBundle\Exception\BoardExistsException
      */
-    public function delete(Board $board)
+    public function delete(BoardInterface $board)
     {
         $boards = $this->getBoardsByParentBoard($board);
 
@@ -293,7 +243,6 @@ class BoardService extends BaseService
             throw new \Cornichon\ForumBundle\Exception\TopicExistsException();
         }
 
-        $this->em->remove($board->getStat());
         $this->em->remove($board);
         $this->em->flush();
     }
@@ -301,11 +250,11 @@ class BoardService extends BaseService
     /**
      * Save a board and make sure all associations are built properly
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
-     * @return Board
+     * @return BoardInterface
      */
-    public function save(Board $board)
+    public function save(BoardInterface $board)
     {
         // Pick a user if none was specified
         if ($board->getUser() === null) {
@@ -336,11 +285,11 @@ class BoardService extends BaseService
      * Build a single slug for a board
      * It will go through the parent slug and attach them together
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @return string
      */
-    public function buildSlug(Board $board)
+    public function buildSlug(BoardInterface $board)
     {
         $parents = $board->getParents();
 
@@ -356,12 +305,12 @@ class BoardService extends BaseService
     /**
      * Change the parent board of all boards that has $original as a parent
      * 
-     * @param  Board  $original 
-     * @param  Board  $destination 
+     * @param  BoardInterface  $original 
+     * @param  BoardInterface  $destination 
      * 
      * @return integer
      */
-    public function switchBoardParent(Board $original, Board $destination)
+    public function switchBoardParent(BoardInterface $original, BoardInterface $destination)
     {
         return $this->em
                     ->getRepository($this->boardRepositoryClass)
@@ -372,12 +321,12 @@ class BoardService extends BaseService
      * Add a given number to the topics count of a given board
      * and bubbles up to its parents
      * 
-     * @param  Board   $board
-     * @param  integer $increment = 1
+     * @param  BoardInterface   $board
+     * @param  integer          $increment = 1
      * 
      * @return BoardService
      */
-    public function incrementStatTopics(Board $board, $increment = 1)
+    public function incrementStatTopics(BoardInterface $board, $increment = 1)
     {
         $board->increaseTotalTopics($increment);
 
@@ -394,12 +343,12 @@ class BoardService extends BaseService
      * Add a given number to the posts count of a given board
      * and bubbles up to its parents
      * 
-     * @param  Board   $board    
-     * @param  integer $increment = 1
+     * @param  BoardInterface   $board    
+     * @param  integer          $increment = 1
      * 
      * @return  BoardService
      */
-    public function incrementStatPosts(Board $board, $increment = 1) 
+    public function incrementStatPosts(BoardInterface $board, $increment = 1) 
     {
         $board->increaseTotalPosts($increment);
 
@@ -412,7 +361,7 @@ class BoardService extends BaseService
         return $this;
     }
 
-    public function moveBoard(Board $original, Board $destination)
+    public function moveBoard(BoardInterface $original, BoardInterface $destination)
     {
         
     }
@@ -420,12 +369,12 @@ class BoardService extends BaseService
     /**
      * Move the content of the original board into a destination board
      * 
-     * @param  Board  $original    
-     * @param  Board  $destination
+     * @param  BoardInterface  $original    
+     * @param  BoardInterface  $destination
      * 
      * @throws \Cornichon\ForumBundle\Exception\InvalidBoardException
      */
-    public function moveContent(Board $original, Board $destination)
+    public function moveContent(BoardInterface $original, BoardInterface $destination)
     {
         if ($original->getId() === $destination->getId()) {
             throw new \Cornichon\ForumBundle\Exception\InvalidBoardException();
@@ -469,8 +418,8 @@ class BoardService extends BaseService
      * If the destination board is reached it will stop recursive calls and return false
      * If the destionation board is not reached it will return true
      * 
-     * @param  Board   $source      
-     * @param  Board   $destination 
+     * @param  BoardInterface   $source      
+     * @param  BoardInterface   $destination 
      * @param  integer $posts       
      * @param  integer $topics
      *    
@@ -501,13 +450,13 @@ class BoardService extends BaseService
      * Progress through the parents of the given boards and increase their 
      * stats with given post and topic counts
      * 
-     * @param  Board   $board
+     * @param  BoardInterface   $board
      * @param  integer $posts
      * @param  integer $topics
      * 
      * @return boolean
      */
-    private function recurciveMoveAddition($board, $posts, $topics)
+    private function recurciveMoveAddition(BoardInterface $board, $posts, $topics)
     {
         $board->increaseTotalPosts($posts);
 

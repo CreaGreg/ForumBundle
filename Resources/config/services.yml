@@ -3,6 +3,7 @@ parameters:
     cornichon_forum.flag_service.class:             Cornichon\ForumBundle\Service\FlagService
     cornichon_forum.topic_service.class:            Cornichon\ForumBundle\Service\TopicService
     cornichon_forum.message_service.class:          Cornichon\ForumBundle\Service\MessageService
+    cornichon_forum.message_star_service.class:     Cornichon\ForumBundle\Service\MessageStarService
     cornichon_forum.moderation_service.class:       Cornichon\ForumBundle\Service\ModerationService
     cornichon_forum.main_service.class:             Cornichon\ForumBundle\Service\MainService
     cornichon_forum.user_stat_service.class:        Cornichon\ForumBundle\Service\UserStatService
@@ -14,6 +15,7 @@ parameters:
     cornichon_forum.flag_repository.class:         'CornichonForumBundle:Flag'
     cornichon_forum.topic_repository.class:        'CornichonForumBundle:Topic'
     cornichon_forum.message_repository.class:      'CornichonForumBundle:Message'
+    cornichon_forum.message_star_repository.class: 'CornichonForumBundle:MessageStar'
     cornichon_forum.moderation_repository.class:   'CornichonForumBundle:Moderation'
     cornichon_forum.user_stat_repository.class:    'CornichonForumBundle:UserStat'
 
@@ -29,6 +31,9 @@ services:
         arguments: [@service_container]
     cornichon.forum.message:
         class: %cornichon_forum.message_service.class%
+        arguments: [@service_container]
+    cornichon.forum.message_star:
+        class: %cornichon_forum.message_star_service.class%
         arguments: [@service_container]
     cornichon.forum.moderation:
         class: %cornichon_forum.moderation_service.class%

@@ -6,6 +6,9 @@ use Cornichon\ForumBundle\Entity\Board;
 use Cornichon\ForumBundle\Entity\Topic;
 use Cornichon\ForumBundle\Entity\Message;
 
+use Cornichon\ForumBundle\Entity\BoardInterface;
+use Cornichon\ForumBundle\Entity\TopicInterface;
+
 use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -38,14 +41,28 @@ class TopicService extends BaseService
     }
 
     /**
+     * Get a Topic entity by a given topic slug
+     * 
+     * @param  string  $topicSlug
+     * 
+     * @return Topic
+     */
+    public function getBySlug($topicSlug)
+    {
+        return $this->em
+                    ->getRepository($this->topicRepositoryClass)
+                    ->findOneBySlug($topicSlug);
+    }
+
+    /**
      * Get all topics in board
      * Performance can be poor because it will gather all data
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
-    public function getInBoard(Board $board)
+    public function getInBoard(BoardInterface $board)
     {
         return $this->em
                     ->getRepository($this->topicRepositoryClass)
@@ -86,13 +103,13 @@ class TopicService extends BaseService
     /**
      * Get the latest topics by board
      * 
-     * @param  Board    $board
-     * @param  integer  $offset
-     * @param  integer  $limit
+     * @param  BoardInterface    $board
+     * @param  integer           $offset
+     * @param  integer           $limit
      * 
      * @return \Doctrine\ORM\Tools\Pagination\Paginator
      */
-    public function getLatestTopicsByBoard(Board $board, $offset, $limit)
+    public function getLatestTopicsByBoard(BoardInterface $board, $offset, $limit)
     {
         return $this->em
                     ->getRepository($this->topicRepositoryClass)
@@ -130,32 +147,32 @@ class TopicService extends BaseService
     /**
      * Move all topics from a board to another board
      * 
-     * @param  Board   $from
-     * @param  Board   $to
-     * @param  boolean $flush = true
+     * @param  BoardInterface   $from
+     * @param  BoardInterface   $to
+     * @param  boolean          $flush = true
      * 
      * @return integer 
      */
-    public function moveFromBoardToBoard(Board $from, Board $to, $flush = true)
+    public function moveFromBoardToBoard(BoardInterface $from, BoardInterface $to, $flush = true)
     {
         return $this->em
                     ->getRepository($this->topicRepositoryClass)
                     ->moveFromBoardToBoard($from, $to);
     }
 
-    public function flag(Topic $topic, UserInterface $user)
+    public function flag(TopicInterface $topic, UserInterface $user)
     {
 
     }
 
     /**
-     * Save a Topic and check for data integrity
+     * Save a TopicInterface and check for data integrity
      * 
-     * @param  Topic  $topic
+     * @param  TopicInterface  $topic
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function save(Topic $topic)
+    public function save(TopicInterface $topic)
     {
         // If no user is specified, pick the current one
         if ($topic->getUser() === null) {
@@ -202,12 +219,12 @@ class TopicService extends BaseService
     /**
      * Delete a topic
      * 
-     * @param  Topic    $topic
-     * @param  boolean  $bubbleDown = false    if it should delete a related object
+     * @param  TopicInterface    $topic
+     * @param  boolean           $bubbleDown = false    if it should delete a related object
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function delete(Topic $topic, $bubbleDown = false)
+    public function delete(TopicInterface $topic, $bubbleDown = false)
     {
         $topic->setIsDeleted(true);
 
@@ -241,12 +258,12 @@ class TopicService extends BaseService
     /**
      * Undelete a topic
      * 
-     * @param  Topic    $topic
-     * @param  boolean  $bubbleDown = false    if it should delete a related object
+     * @param  TopicInterface   $topic
+     * @param  boolean          $bubbleDown = false    if it should delete a related object
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function undelete(Topic $topic, $bubbleDown = false)
+    public function undelete(TopicInterface $topic, $bubbleDown = false)
     {
         $topic->setIsDeleted(false);
 
@@ -280,11 +297,11 @@ class TopicService extends BaseService
     /**
      * Pin a topic
      * 
-     * @param  Topic    $topic
+     * @param  TopicInterface    $topic
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function pin(Topic $topic)
+    public function pin(TopicInterface $topic)
     {
         $topic->setIsPinned(true);
 
@@ -305,11 +322,11 @@ class TopicService extends BaseService
     /**
      * Unpin a topic
      * 
-     * @param  Topic    $topic
+     * @param  TopicInterface    $topic
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function unpin(Topic $topic)
+    public function unpin(TopicInterface $topic)
     {
         $topic->setIsPinned(false);
 
@@ -330,11 +347,11 @@ class TopicService extends BaseService
     /**
      * Lock a topic
      * 
-     * @param  Topic    $topic
+     * @param  TopicInterface    $topic
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function lock(Topic $topic)
+    public function lock(TopicInterface $topic)
     {
         $topic->setIsLocked(true);
 
@@ -355,11 +372,11 @@ class TopicService extends BaseService
     /**
      * Unlock a topic
      * 
-     * @param  Topic    $topic
+     * @param  TopicInterface    $topic
      * 
-     * @return Topic
+     * @return TopicInterface
      */
-    public function unlock(Topic $topic)
+    public function unlock(TopicInterface $topic)
     {
         $topic->setIsLocked(false);
 
@@ -380,12 +397,12 @@ class TopicService extends BaseService
     /**
      * Add a given number to the views count of a given topic
      * 
-     * @param  Topic   $topic
+     * @param  TopicInterface   $topic
      * @param  integer $increment = 1
      * 
      * @return TopicService
      */
-    public function incrementTotalViews(Topic $topic, $increment = 1)
+    public function incrementTotalViews(TopicInterface $topic, $increment = 1)
     {
         $topic->increaseTotalPosts($increment);
 
@@ -395,12 +412,12 @@ class TopicService extends BaseService
     /**
      * Add a given number to the posts count of a given topic
      * 
-     * @param  Topic   $topic
+     * @param  TopicInterface   $topic
      * @param  integer $increment = 1
      * 
      * @return TopicService
      */
-    public function incrementTotalPosts(Topic $topic, $increment = 1)
+    public function incrementTotalPosts(TopicInterface $topic, $increment = 1)
     {
         $topic->increaseTotalPosts($increment);
 

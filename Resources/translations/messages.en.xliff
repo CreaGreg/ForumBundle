@@ -226,6 +226,58 @@
                 <source>flagged</source>
                 <target>flagged</target>
             </trans-unit>
+            <trans-unit id="57">
+                <source>View</source>
+                <target>View</target>
+            </trans-unit>
+            <trans-unit id="58">
+                <source>Create</source>
+                <target>Create</target>
+            </trans-unit>
+            <trans-unit id="59">
+                <source>Edit</source>
+                <target>Edit</target>
+            </trans-unit>
+            <trans-unit id="60">
+                <source>Pick.the.permissions.for</source>
+                <target>Pick the permissions for</target>
+            </trans-unit>
+            <trans-unit id="61">
+                <source>Pick.a.group</source>
+                <target>Pick a group</target>
+            </trans-unit>
+            <trans-unit id="62">
+                <source>Like</source>
+                <target>Like</target>
+            </trans-unit>
+            <trans-unit id="63">
+                <source>Deleted</source>
+                <target>Deleted</target>
+            </trans-unit>
+            <trans-unit id="64">
+                <source>Locked</source>
+                <target>Locked</target>
+            </trans-unit>
+            <trans-unit id="65">
+                <source>Pinned</source>
+                <target>Pinned</target>
+            </trans-unit>
+            <trans-unit id="66">
+                <source>Pick.the.permissions.for.the.group</source>
+                <target>Pick the permissions for the group</target>
+            </trans-unit>
+            <trans-unit id="67">
+                <source>Pick.the.permissions.explanation</source>
+                <target>Apply some permissions to the group by clicking on the checkboxes and submit the changes using the save button. Clicking on "Apply to children" will apply the permissions to the boards within the selected parent board.</target>
+            </trans-unit>
+            <trans-unit id="68">
+                <source>Pick.the.permissions.explanation.second</source>
+                <target>"View" defines that users in the group can view the topics and messages within the board. "Create" defines that users can create a topic or a message. "Edit" defines that users can edit their own topics and messages. "Delete" defines that users can delete their own topics and messages.</target>
+            </trans-unit>
+            <trans-unit id="69">
+                <source>Misc</source>
+                <target>Misc</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

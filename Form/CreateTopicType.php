@@ -13,7 +13,7 @@ class CreateTopicType extends AbstractType
         $builder
             ->add('title')
             ->add('body', 'textarea', array(
-                'property_path' => false
+                'mapped' => false
             ))
         ;
     }

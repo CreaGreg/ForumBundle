@@ -22,6 +22,8 @@ class MainService extends BaseService
      */
     public function forumPath($routeName, $entity = null)
     {
+        $useId = $this->container->getParameter('moo.forum.url.use_id');
+
         $parameters = array();
         $board = null;
         $topic = null;
@@ -50,6 +52,16 @@ class MainService extends BaseService
         }
 
         return $this->container->get('router')->generate($routeName, $parameters);
+    }
+
+    public function getTotalMessagesPerPage()
+    {
+        return 25;
+    }
+
+    public function getTotalTopicsPerPage()
+    {
+        return 40;
     }
 
 }

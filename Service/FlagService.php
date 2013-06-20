@@ -8,6 +8,10 @@ use Cornichon\ForumBundle\Entity\Message;
 use Cornichon\ForumBundle\Entity\Flag;
 use Cornichon\ForumBundle\Entity\Moderation;
 
+use Cornichon\ForumBundle\Entity\MessageInterface;
+use Cornichon\ForumBundle\Entity\TopicInterface;
+use Cornichon\ForumBundle\Entity\FlagInterface;
+
 use Symfony\Component\Security\Core\User\UserInterface;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -79,11 +83,11 @@ class FlagService extends BaseService
     /**
      * Save a flag
      * 
-     * @param  Flag   $flag
+     * @param  FlagInterface   $flag
      * 
-     * @return Flag
+     * @return FlagInterface
      */
-    public function save(Flag $flag)
+    public function save(FlagInterface $flag)
     {
         $this->em->persist($flag);
         $this->em->flush();
@@ -94,11 +98,11 @@ class FlagService extends BaseService
     /**
      * Get a flag by topic
      * 
-     * @param  Topic  $topic
+     * @param  TopicInterface  $topic
      * 
-     * @return Flag|null
+     * @return FlagInterface|null
      */
-    public function getByTopic(Topic $topic)
+    public function getByTopic(TopicInterface $topic)
     {
         return $this->em
                     ->getRepository($this->flagRepositoryClass)
@@ -108,11 +112,11 @@ class FlagService extends BaseService
     /**
      * Get a flag by message
      * 
-     * @param  Message  $message
+     * @param  MessageInterface  $message
      * 
-     * @return Flag|null
+     * @return FlagInterface|null
      */
-    public function getByMessage(Message $message)
+    public function getByMessage(MessageInterface $message)
     {
         return $this->em
                     ->getRepository($this->flagRepositoryClass)

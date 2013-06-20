@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  *
  * @ORM\MappedSuperclass
  */
-class Flag
+class Flag implements FlagInterface
 {
     /**
      * @var integer $id

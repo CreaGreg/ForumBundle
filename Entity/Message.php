@@ -3,13 +3,14 @@
 namespace Cornichon\ForumBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Cornichon\ForumBundle\Entity\Message
  *
  * @ORM\MappedSuperclass
  */
-class Message
+class Message implements MessageInterface
 {
     /**
      * @var integer $id
@@ -33,6 +34,13 @@ class Message
      * @ORM\Column(name="body", type="text")
      */
     protected $body;
+
+    /**
+     * @var integer $totalStarred
+     *
+     * @ORM\Column(name="total_starred", type="integer")
+     */
+    protected $totalStarred = 0;
 
     /**
      * @var \DateTime $dateCreated
@@ -71,6 +79,16 @@ class Message
      * @var \Cornichon\ForumBundle\Entity\Topic $topic
      */
     protected $topic;
+
+    /**
+     * @var ArrayCollection
+     */
+    protected $stars;
+
+    public function __construct()
+    {
+        $this->stars = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -127,6 +145,58 @@ class Message
     public function getBody()
     {
         return $this->body;
+    }
+
+    /**
+     * Set total times the message was starred
+     *
+     * @param integer $totalStarred
+     * 
+     * @return Message
+     */
+    public function setTotalStarred($int)
+    {
+        $this->totalStarred = $int;
+    
+        return $this;
+    }
+
+    /**
+     * Get total times the message was starred
+     *
+     * @return integer 
+     */
+    public function getTotalStarred()
+    {
+        return $this->totalStarred;
+    }
+
+    /**
+     * Increase the total of times the message was starred
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return Message
+     */
+    public function increaseTotalStarred($int = 1)
+    {
+        $this->totalStarred += $int;
+
+        return $this;
+    }
+
+    /**
+     * Decrease the total of times the message was starred
+     * 
+     * @param  integer $int = 1
+     * 
+     * @return  Message
+     */
+    public function decreaseTotalStarred($int = 1)
+    {
+        $this->totalStarred -= $int;
+
+        return $this;
     }
 
     /**
@@ -266,6 +336,42 @@ class Message
     public function getTopic()
     {
         return $this->topic;
+    }
+
+    /**
+     * Add MessageStar
+     *
+     * @param MessageStar $star
+     * 
+     * @return Message
+     */
+    public function addStar(MessageStar $star)
+    {
+        $this->stars[] = $star;
+
+        return $this;
+    }
+
+    /**
+     * Set stars
+     *
+     * @return Message
+     */
+    public function setStars(ArrayCollection $stars)
+    {
+        $this->stars = $stars;
+
+        return $this;
+    }
+
+    /**
+     * Get a collection of stars
+     *
+     * @return ArrayCollection
+     */
+    public function getStars()
+    {
+        return $this->stars;
     }
 
     //

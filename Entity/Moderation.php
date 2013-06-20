@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\MappedSuperclass
  */
-class Moderation
+class Moderation implements ModerationInterface
 {
     const ACTION_ID_LOCK = 10;
     const ACTION_ID_UNLOCK = 11;

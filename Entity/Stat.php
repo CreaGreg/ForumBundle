@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\MappedSuperclass
  */
-class Stat
+class Stat implements StatInterface
 {
     /**
      * @var integer $id

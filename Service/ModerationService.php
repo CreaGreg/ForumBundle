@@ -8,6 +8,9 @@ use Cornichon\ForumBundle\Entity\Message;
 use Cornichon\ForumBundle\Entity\Flag;
 use Cornichon\ForumBundle\Entity\Moderation;
 
+use Cornichon\ForumBundle\Entity\TopicInterface;
+use Cornichon\ForumBundle\Entity\ModerationInterface;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -124,7 +127,7 @@ class ModerationService extends BaseService
      * 
      * @return Moderation
      */
-    public function lock(Topic $topic, UserInterface $user)
+    public function lock(TopicInterface $topic, UserInterface $user)
     {
         $moderation = $this->createFromAction('lock', $user);
         $moderation->setTopic($topic);
@@ -142,7 +145,7 @@ class ModerationService extends BaseService
      * 
      * @return Moderation
      */
-    public function unlock(Topic $topic, UserInterface $user)
+    public function unlock(TopicInterface $topic, UserInterface $user)
     {
         $moderation = $this->createFromAction('unlock', $user);
         $moderation->setTopic($topic);
@@ -160,7 +163,7 @@ class ModerationService extends BaseService
      * 
      * @return Moderation
      */
-    public function pin(Topic $topic, UserInterface $user)
+    public function pin(TopicInterface $topic, UserInterface $user)
     {
         $moderation = $this->createFromAction('pin', $user);
         $moderation->setTopic($topic);
@@ -178,7 +181,7 @@ class ModerationService extends BaseService
      * 
      * @return Moderation
      */
-    public function unpin(Topic $topic, UserInterface $user)
+    public function unpin(TopicInterface $topic, UserInterface $user)
     {
         $moderation = $this->createFromAction('unpin', $user);
         $moderation->setTopic($topic);
@@ -237,7 +240,7 @@ class ModerationService extends BaseService
      * 
      * @return Moderation
      */
-    public function save(Moderation $moderation)
+    public function save(ModerationInterface $moderation)
     {
         $this->em->persist($moderation);
         $this->em->flush();

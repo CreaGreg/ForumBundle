@@ -31,7 +31,7 @@ class ModuleController extends Controller
 
     public function listTopicsAction($boardId = null)
     {
-        $em = $this->get('doctrine')->getEntityManager();
+        $em = $this->get('doctrine')->getManager();
 
         if ($boardId === null) {
             $topics = $this->get('cornichon.forum.topic')->getLatestTopics(0, 10);
@@ -53,7 +53,7 @@ class ModuleController extends Controller
 
     public function listBoardsAction()
     {
-        $em = $this->get('doctrine')->getEntityManager();
+        $em = $this->get('doctrine')->getManager();
 
         return $this->render('CornichonForumBundle:Module:listBoards.html.twig', array(
         ));
@@ -61,7 +61,7 @@ class ModuleController extends Controller
 
     public function listMessagesAction($topicId)
     {
-        $em = $this->get('doctrine')->getEntityManager();
+        $em = $this->get('doctrine')->getManager();
 
         $topic = $em->getRepository($this->getParameter('cornichon_forum.topic_repository.class'))->find($topicId);
 
@@ -82,7 +82,7 @@ class ModuleController extends Controller
             throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
         }
 
-        $em = $this->get('doctrine')->getEntityManager();
+        $em = $this->get('doctrine')->getManager();
 
         $topic = $em->getRepository($this->getParameter('cornichon_forum.topic_repository.class'))->find($topicId);
 
@@ -115,7 +115,7 @@ class ModuleController extends Controller
             throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException();
         }
 
-        $em = $this->get('doctrine')->getEntityManager();
+        $em = $this->get('doctrine')->getManager();
 
         $board = $em->getRepository($this->getParameter('cornichon_forum.board_repository.class'))->find($boardId);
 

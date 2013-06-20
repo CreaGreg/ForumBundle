@@ -4,6 +4,8 @@ namespace Cornichon\ForumBundle\Repository;
 
 use Cornichon\ForumBundle\Entity\Board;
 
+use Cornichon\ForumBundle\Entity\BoardInterface;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -12,7 +14,7 @@ class BoardRepository extends EntityRepository
 {
 
     /**
-     * Get a Board entity
+     * Get a BoardInterface entity
      * 
      * @param  integer  $id
      * @param  boolean  $deleted = false
@@ -87,11 +89,11 @@ class BoardRepository extends EntityRepository
     /**
      * Get a list of boards by parent board
      * 
-     * @param  Board  $board
+     * @param  BoardInterface  $board
      * 
      * @return ArrayCollection
      */
-    public function getBoardsByParentBoard(Board $board)
+    public function getBoardsByParentBoard(BoardInterface $board)
     {
         $queryBuilder = $this->createQueryBuilder('b')
                       ->select(array('b'))
@@ -121,6 +123,25 @@ class BoardRepository extends EntityRepository
         $queryBuilder->where($queryBuilder->expr()->in('b.parent', $boardIds));
 
         $query = $queryBuilder->getQuery();
+
+        return new ArrayCollection($query->getResult());
+    }
+
+    /**
+     * Get a list of all boards for the tree building
+     * 
+     * @return ArrayCollection
+     */
+    public function getBoardsForTreeBuilding()
+    {
+        $queryBuilder = $this->createQueryBuilder('b')
+                      ->select(array('b', 'IDENTITY(b.parent)'))
+                      ->orderBy('b.depth', 'asc')
+                      ->addOrderBy('b.position', 'asc');
+
+        $query = $queryBuilder->getQuery();
+
+        $query->setHint(\Doctrine\ORM\Query::HINT_FORCE_PARTIAL_LOAD, true);
 
         return new ArrayCollection($query->getResult());
     }
@@ -186,12 +207,12 @@ class BoardRepository extends EntityRepository
     /**
      * Change the parent board of all boards that has $original as a parent
      * 
-     * @param  Board  $source 
-     * @param  Board  $destination 
+     * @param  BoardInterface  $source 
+     * @param  BoardInterface  $destination 
      * 
      * @return integer
      */
-    public function switchBoardParent(Board $source, Board $destination)
+    public function switchBoardParent(BoardInterface $source, BoardInterface $destination)
     {
         return $this->createQueryBuilder('b')
             ->update($this->getEntityName(), 'b')

@@ -18,7 +18,8 @@ class FlagRepository extends EntityRepository
     public function getLatestFlags($offset, $limit)
     {
         $queryBuilder = $this->createQueryBuilder('f')
-                             ->select(array('f', 'u', 'm', 't'))
+                             ->select(array('f', 'mo', 'u', 'm', 't'))
+                             ->leftJoin('f.moderation', 'mo')
                              ->join('f.users', 'u')
                              ->leftJoin('f.message', 'm')
                              ->leftJoin('f.topic', 't')

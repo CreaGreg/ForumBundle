@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\MappedSuperclass
  */
-class UserStat
+class UserStat implements UserStatInterface
 {
     /**
      * @var integer $id
@@ -175,5 +175,53 @@ class UserStat
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Get a short value of the number of posts
+     *
+     * @return string
+     */
+    public function getShortTotalTopic()
+    {
+        return $this->convertFormat($this->totalTopic);
+    }
+
+    /**
+     * Get a short value of the number of views
+     *
+     * @return string
+     */
+    public function getShortTotalMessage()
+    {
+        return $this->convertFormat($this->totalMessage);
+    }
+
+    /**
+     * Convert an integer into a short string
+     *
+     * 1000 -> 1K
+     * 1500 -> 1.5K
+     * 150500 -> 150K
+     * 1000000 -> 1M
+     * 1500000 -> 1.5M
+     *
+     * @param  integer  $var
+     * @return integer
+     */
+    protected function convertFormat($var)
+    {   
+        if ($var < 1000) {
+            return $var;
+        }
+        else if ($var < 10000) {
+            return round($var / 1000, 1) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000) ."K";
+        }
+        else if ($var < 1000000) {
+            return round($var / 1000000) . "M";
+        }
     }
 }
